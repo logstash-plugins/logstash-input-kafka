@@ -31,6 +31,8 @@ See http://kafka.apache.org/documentation.html#consumerconfigs for details about
         }
     }
 
+The default codec is json
+
 Dependencies
 ====================
 
