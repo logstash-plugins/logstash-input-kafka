@@ -23,10 +23,12 @@ Gem::Specification.new do |s|
   s.requirements << "jar 'org.apache.kafka:kafka_2.10', '0.8.1.1'"
 
   # Gem dependencies
-  s.add_runtime_dependency 'logstash', '>= 1.4.0', '< 2.0.0'
   s.add_runtime_dependency 'jar-dependencies', ['~> 0.1.0']
 
   s.add_runtime_dependency 'jruby-kafka', ['>=0.2.1']
 
+  s.add_runtime_dependency 'logstash', '>= 1.4.0', '< 2.0.0'
+  s.add_runtime_dependency 'logstash-codec-plain'
+  s.add_runtime_dependency 'logstash-codec-json'
 end
 
