@@ -20,7 +20,7 @@ Gem::Specification.new do |s|
   s.metadata = { 'logstash_plugin' => 'true', 'group' => 'input'}
 
   # Jar dependencies
-  s.requirements << "jar 'org.apache.kafka:kafka_2.10', '0.8.1.1'"
+  s.requirements << "jar 'org.apache.kafka:kafka_2.9.2', '0.8.2-beta'"
 
   # Gem dependencies
   s.add_runtime_dependency 'logstash', '>= 1.4.0', '< 2.0.0'
