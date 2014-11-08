@@ -24,13 +24,13 @@ class LogStash::Inputs::Kafka < LogStash::Inputs::Base
 
   # Specifies the ZooKeeper connection string in the form hostname:port where host and port are
   # the host and port of a ZooKeeper server. You can also specify multiple hosts in the form
-  # hostname1:port1,hostname2:port2,hostname3:port3.
+  # `hostname1:port1,hostname2:port2,hostname3:port3`.
   #
   # The server may also have a ZooKeeper chroot path as part of it's ZooKeeper connection string
   # which puts its data under some path in the global ZooKeeper namespace. If so the consumer
   # should use the same chroot path in its connection string. For example to give a chroot path of
-  # /chroot/path you would give the connection string as
-  # hostname1:port1,hostname2:port2,hostname3:port3/chroot/path.
+  # `/chroot/path` you would give the connection string as
+  # `hostname1:port1,hostname2:port2,hostname3:port3/chroot/path`.
   config :zk_connect, :validate => :string, :default => 'localhost:2181'
   # A string that uniquely identifies the group of consumer processes to which this consumer
   # belongs. By setting the same group id multiple processes indicate that they are all part of
@@ -39,12 +39,12 @@ class LogStash::Inputs::Kafka < LogStash::Inputs::Base
   # The topic to consume messages from
   config :topic_id, :validate => :string, :required => true
   # Specify whether to jump to beginning of the queue when there is no initial offset in
-  # ZooKeeper, or if an offset is out of range. If this is false, messages are consumed
+  # ZooKeeper, or if an offset is out of range. If this is `false`, messages are consumed
   # from the latest offset
   #
-  # If reset_beginning is true, the consumer will check ZooKeeper to see if any other group members
+  # If `reset_beginning` is true, the consumer will check ZooKeeper to see if any other group members
   # are present and active. If not, the consumer deletes any offset information in the ZooKeeper
-  # and starts at the smallest offset. If other group members are present reset_beginning will not
+  # and starts at the smallest offset. If other group members are present `reset_beginning` will not
   # work and the consumer threads will rejoin the consumer group.
   config :reset_beginning, :validate => :boolean, :default => false
   # Number of threads to read from the partitions. Ideally you should have as many threads as the
