@@ -1,15 +1,14 @@
 # encoding: utf-8
+require 'spec_helper'
 
-require 'rspec'
-require 'insist'
-require 'logstash/namespace'
-require 'logstash/inputs/kafka'
-require 'logstash/errors'
+describe 'inputs/kafka' do
 
-describe LogStash::Inputs::Kafka do
-  extend LogStash::RSpec
+  let (:kafka_config) {{'topic_id' => 'test'}}
 
-  let (:kafka_config) {{:topic_id => 'test'}}
+  it "should register" do
+    input = LogStash::Plugin.lookup("input", "kafka").new(kafka_config)
+    expect {input.register}.to_not raise_error
+  end
 
   it 'should populate kafka config with default values' do
     kafka = LogStash::Inputs::Kafka.new(kafka_config)
@@ -17,11 +16,6 @@ describe LogStash::Inputs::Kafka do
     insist {kafka.topic_id} == 'test'
     insist {kafka.group_id} == 'logstash'
     !insist { kafka.reset_beginning }
-  end
-
-  it 'should register and load kafka jars without errors' do
-    kafka = LogStash::Inputs::Kafka.new(kafka_config)
-    kafka.register
   end
 
   it 'should retrieve event from kafka' do
