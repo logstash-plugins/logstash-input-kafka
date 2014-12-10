@@ -1,5 +1,16 @@
 # encoding: utf-8
 require "logstash/devutils/rspec/spec_helper"
+require "logstash/inputs/kafka"
+
+class LogStash::Inputs::TestKafka < LogStash::Inputs::Kafka
+  milestone 1
+  private
+  def queue_event(msg, output_queue)
+    super(msg, output_queue)
+    # need to raise exception here to stop the infinite loop
+    raise LogStash::ShutdownSignal
+  end
+end
 
 describe 'inputs/kafka' do
 
@@ -11,7 +22,7 @@ describe 'inputs/kafka' do
   end
 
   it 'should populate kafka config with default values' do
-    kafka = LogStash::Inputs::Kafka.new(kafka_config)
+    kafka = LogStash::Inputs::TestKafka.new(kafka_config)
     insist {kafka.zk_connect} == 'localhost:2181'
     insist {kafka.topic_id} == 'test'
     insist {kafka.group_id} == 'logstash'
@@ -20,25 +31,15 @@ describe 'inputs/kafka' do
 
   it 'should retrieve event from kafka' do
     # Extend class to control behavior
-    class LogStash::Inputs::TestKafka < LogStash::Inputs::Kafka
-      milestone 1
-      private
-      def queue_event(msg, output_queue)
-        super(msg, output_queue)
-        # need to raise exception here to stop the infinite loop
-        raise LogStash::ShutdownSignal
-      end
-    end
-
-    kafka = LogStash::Inputs::TestKafka.new(kafka_config)
-    kafka.register
-
     class Kafka::Group
       public
       def run(a_num_threads, a_queue)
         a_queue << 'Kafka message'
       end
     end
+
+    kafka = LogStash::Inputs::TestKafka.new(kafka_config)
+    kafka.register
 
     logstash_queue = Queue.new
     kafka.run logstash_queue
