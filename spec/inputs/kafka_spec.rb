@@ -12,8 +12,8 @@ class LogStash::Inputs::TestKafka < LogStash::Inputs::Kafka
   end
 end
 
-describe 'inputs/kafka' do
 
+describe 'inputs/kafka' do
   let (:kafka_config) {{'topic_id' => 'test'}}
 
   it "should register" do
@@ -30,16 +30,12 @@ describe 'inputs/kafka' do
   end
 
   it 'should retrieve event from kafka' do
-    # Extend class to control behavior
-    class Kafka::Group
-      public
-      def run(a_num_threads, a_queue)
-        a_queue << 'Kafka message'
-      end
-    end
-
     kafka = LogStash::Inputs::TestKafka.new(kafka_config)
     kafka.register
+
+    expect_any_instance_of(Kafka::Group).to receive(:run) do |a_num_threads, a_queue|
+      a_queue << 'Kafka message'
+    end
 
     logstash_queue = Queue.new
     kafka.run logstash_queue
