@@ -15,6 +15,7 @@ end
 
 describe 'inputs/kafka' do
   let (:kafka_config) {{'topic_id' => 'test'}}
+  let (:decorated_kafka_config) {{'topic_id' => 'test', 'decorate_events' => true}}
 
   it "should register" do
     input = LogStash::Plugin.lookup("input", "kafka").new(kafka_config)
@@ -43,6 +44,24 @@ describe 'inputs/kafka' do
     insist { e['message'] } == 'Kafka message'
     # no metadata by default
     insist { e['kafka'] } == nil
+  end
+
+  it 'should retrieve a decorated event from kafka' do
+    kafka = LogStash::Inputs::TestKafka.new(decorated_kafka_config)
+    kafka.register
+
+    expect_any_instance_of(Kafka::Group).to receive(:run) do |a_num_threads, a_queue|
+      a_queue << 'Kafka message'
+    end
+
+    logstash_queue = Queue.new
+    kafka.run logstash_queue
+    e = logstash_queue.pop
+    insist { e['message'] } == 'Kafka message'
+    # no metadata by default
+    insist { e['kafka']['topic'] } == 'test'
+    insist { e['kafka']['consumer_group'] } == 'logstash'
+    insist { e['kafka']['msg_size'] } == 13
   end
 
 end
