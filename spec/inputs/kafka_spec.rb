@@ -1,6 +1,7 @@
 # encoding: utf-8
 require "logstash/devutils/rspec/spec_helper"
 require "logstash/inputs/kafka"
+require 'jruby-kafka'
 
 class LogStash::Inputs::TestKafka < LogStash::Inputs::Kafka
   milestone 1
@@ -12,6 +13,12 @@ class LogStash::Inputs::TestKafka < LogStash::Inputs::Kafka
   end
 end
 
+
+class TestKafkaGroup < Kafka::Group
+  def run(a_num_threads, a_queue)
+    a_queue << 'Kafka message'
+  end
+end
 
 describe 'inputs/kafka' do
   let (:kafka_config) {{'topic_id' => 'test'}}
@@ -31,12 +38,8 @@ describe 'inputs/kafka' do
   end
 
   it 'should retrieve event from kafka' do
-    kafka = LogStash::Inputs::TestKafka.new(kafka_config)
+    kafka = LogStash::Inputs::TestKafka.new(kafka_config, TestKafkaGroup)
     kafka.register
-
-    expect_any_instance_of(Kafka::Group).to receive(:run) do |a_num_threads, a_queue|
-      a_queue << 'Kafka message'
-    end
 
     logstash_queue = Queue.new
     kafka.run logstash_queue
@@ -47,12 +50,8 @@ describe 'inputs/kafka' do
   end
 
   it 'should retrieve a decorated event from kafka' do
-    kafka = LogStash::Inputs::TestKafka.new(decorated_kafka_config)
+    kafka = LogStash::Inputs::TestKafka.new(decorated_kafka_config, TestKafkaGroup)
     kafka.register
-
-    expect_any_instance_of(Kafka::Group).to receive(:run) do |a_num_threads, a_queue|
-      a_queue << 'Kafka message'
-    end
 
     logstash_queue = Queue.new
     kafka.run logstash_queue
