@@ -80,12 +80,6 @@ class LogStash::Inputs::Kafka < LogStash::Inputs::Base
   config :fetch_message_max_bytes, :validate => :number, :default => 1048576
 
   public
-  def initialize(params={}, kafka_group_class=Kafka::Group)
-    super(params)
-    @kafka_group_class = kafka_group_class
-  end
-
-  public
   def register
     require 'jruby-kafka'
     options = {
@@ -104,7 +98,7 @@ class LogStash::Inputs::Kafka < LogStash::Inputs::Base
       options[:reset_beginning] = 'from-beginning'
     end # if :reset_beginning
     @kafka_client_queue = SizedQueue.new(@queue_size)
-    @consumer_group = @kafka_group_class.new(options)
+    @consumer_group = create_consumer_group(options)
     @logger.info('Registering kafka', :group_id => @group_id, :topic_id => @topic_id, :zk_connect => @zk_connect)
   end # def register
 
@@ -139,6 +133,11 @@ class LogStash::Inputs::Kafka < LogStash::Inputs::Base
     end
     finished
   end # def run
+
+  private
+  def create_consumer_group(options)
+    Kafka::Group.new(options)
+  end
 
   private
   def queue_event(msg, output_queue)
