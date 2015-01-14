@@ -38,7 +38,10 @@ describe 'inputs/kafka' do
   end
 
   it 'should retrieve event from kafka' do
-    kafka = LogStash::Inputs::TestKafka.new(kafka_config, TestKafkaGroup)
+    kafka = LogStash::Inputs::TestKafka.new(kafka_config)
+    expect(kafka).to receive(:create_consumer_group) do |options|
+      TestKafkaGroup.new(options)
+    end
     kafka.register
 
     logstash_queue = Queue.new
@@ -50,7 +53,10 @@ describe 'inputs/kafka' do
   end
 
   it 'should retrieve a decorated event from kafka' do
-    kafka = LogStash::Inputs::TestKafka.new(decorated_kafka_config, TestKafkaGroup)
+    kafka = LogStash::Inputs::TestKafka.new(decorated_kafka_config)
+    expect(kafka).to receive(:create_consumer_group) do |options|
+      TestKafkaGroup.new(options)
+    end
     kafka.register
 
     logstash_queue = Queue.new
