@@ -18,7 +18,6 @@ require 'logstash-input-kafka_jars'
 #
 class LogStash::Inputs::Kafka < LogStash::Inputs::Base
   config_name 'kafka'
-  milestone 1
 
   default :codec, 'json'
 

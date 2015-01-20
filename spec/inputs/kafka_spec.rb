@@ -4,7 +4,6 @@ require "logstash/inputs/kafka"
 require 'jruby-kafka'
 
 class LogStash::Inputs::TestKafka < LogStash::Inputs::Kafka
-  milestone 1
   private
   def queue_event(msg, output_queue)
     super(msg, output_queue)
