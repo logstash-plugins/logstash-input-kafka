@@ -21,7 +21,7 @@ Gem::Specification.new do |s|
 
   # Jar dependencies
   s.requirements << "jar 'org.apache.kafka:kafka_2.9.2', '0.8.1.1'"
-  s.requirements << "jar 'log4j:log4j', '1.2.14'"
+  s.requirements << "jar 'org.slf4j:slf4j-log4j12', '1.7.10'"
 
   # Gem dependencies
   s.add_runtime_dependency 'logstash', '>= 1.4.0', '< 2.0.0'
