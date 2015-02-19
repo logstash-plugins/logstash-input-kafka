@@ -37,14 +37,9 @@ class LogStash::Inputs::Kafka < LogStash::Inputs::Base
   config :group_id, :validate => :string, :default => 'logstash'
   # The topic to consume messages from
   config :topic_id, :validate => :string, :required => true
-  # Specify whether to jump to beginning of the queue when there is no initial offset in
-  # ZooKeeper, or if an offset is out of range. If this is `false`, messages are consumed
-  # from the latest offset
-  #
-  # If `reset_beginning` is true, the consumer will check ZooKeeper to see if any other group members
-  # are present and active. If not, the consumer deletes any offset information in the ZooKeeper
-  # and starts at the smallest offset. If other group members are present `reset_beginning` will not
-  # work and the consumer threads will rejoin the consumer group.
+  # Reset the consumer group to start at the earliest message present in the log by clearing any
+  # offsets for the group stored in Zookeeper. This is destructive! Must be used in conjunction
+  # with auto_offset_reset => 'smallest'
   config :reset_beginning, :validate => :boolean, :default => false
   # Number of threads to read from the partitions. Ideally you should have as many threads as the
   # number of partitions for a perfect balance. More threads than partitions means that some
@@ -97,7 +92,7 @@ class LogStash::Inputs::Kafka < LogStash::Inputs::Base
     }
     if @reset_beginning
       options[:reset_beginning] = 'from-beginning'
-    end # if :reset_beginning
+    end # if :reset_beginning;
     @kafka_client_queue = SizedQueue.new(@queue_size)
     @consumer_group = create_consumer_group(options)
     @logger.info('Registering kafka', :group_id => @group_id, :topic_id => @topic_id, :zk_connect => @zk_connect)
