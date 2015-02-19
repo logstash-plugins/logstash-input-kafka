@@ -92,7 +92,7 @@ class LogStash::Inputs::Kafka < LogStash::Inputs::Base
     }
     if @reset_beginning
       options[:reset_beginning] = 'from-beginning'
-    end # if :reset_beginning;
+    end # if :reset_beginning
     @kafka_client_queue = SizedQueue.new(@queue_size)
     @consumer_group = create_consumer_group(options)
     @logger.info('Registering kafka', :group_id => @group_id, :topic_id => @topic_id, :zk_connect => @zk_connect)
