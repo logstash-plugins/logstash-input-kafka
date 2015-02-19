@@ -38,8 +38,7 @@ class LogStash::Inputs::Kafka < LogStash::Inputs::Base
   # The topic to consume messages from
   config :topic_id, :validate => :string, :required => true
   # Reset the consumer group to start at the earliest message present in the log by clearing any
-  # offsets for the group stored in Zookeeper. This is destructive! Must be used in conjunction
-  # with auto_offset_reset => 'smallest'
+  # offsets for the group stored in Zookeeper. This is destructive!
   config :reset_beginning, :validate => :boolean, :default => false
   # Number of threads to read from the partitions. Ideally you should have as many threads as the
   # number of partitions for a perfect balance. More threads than partitions means that some
