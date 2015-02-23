@@ -14,10 +14,12 @@ See http://kafka.apache.org/documentation.html#consumerconfigs for details about
 
     input {
         kafka {
-            topic_id => ... # string (required), The topic to consume messages from
+            topic_id => ... # string (required), The topic to consume messages from. Can be a java regular expression for whitelist of topics.
+            blacklist_topics => ... # boolean (optional) default: false, Indicate if topic_id is a blacklist to exclude from consumption.
             zk_connect => ... # string (optional), default: "localhost:2181", Specifies the ZooKeeper connection string in the form hostname:port
             group_id => ... # string (optional), default: "logstash", A string that uniquely identifies the group of consumer processes
             reset_beginning => ... # boolean (optional), default: false, Specify whether to jump to beginning of the queue when there is no initial offset in ZK
+            auto_offset_reset => ... # string (optional), one of [ "largest", "smallest"] default => 'largest', Where consumer should start if group does not already have an established offset or offset is invalid
             consumer_threads => ... # number (optional), default: 1, Number of threads to read from the partitions
             queue_size => ... # number (optional), default: 20, Internal Logstash queue size used to hold events in memory 
             rebalance_max_retries => ... # number (optional), default: 4
