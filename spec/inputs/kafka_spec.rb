@@ -12,10 +12,20 @@ class LogStash::Inputs::TestKafka < LogStash::Inputs::Kafka
   end
 end
 
+class TestMessageAndMetadata
+  attr_reader :topic, :partition, :key, :message
+  def initialize(topic, partition, key, message)
+    @topic = topic
+    @partition = partition
+    @key = key
+    @message = message
+  end
+end
 
 class TestKafkaGroup < Kafka::Group
   def run(a_num_threads, a_queue)
-    a_queue << 'Kafka message'
+    blah = TestMessageAndMetadata.new(@topics_allowed, 0, nil, 'Kafka message')
+    a_queue << blah
   end
 end
 
@@ -66,6 +76,8 @@ describe 'inputs/kafka' do
     insist { e['kafka']['topic'] } == 'test'
     insist { e['kafka']['consumer_group'] } == 'logstash'
     insist { e['kafka']['msg_size'] } == 13
+    insist { e['kafka']['partition'] } == 0
+    insist { e['kafka']['key'] } == nil
   end
 
 end

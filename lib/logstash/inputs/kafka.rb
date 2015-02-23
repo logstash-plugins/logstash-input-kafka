@@ -1,12 +1,12 @@
 require 'logstash/namespace'
 require 'logstash/inputs/base'
-require 'logstash-input-kafka_jars'
+require 'jruby-kafka'
 
 # This input will read events from a Kafka topic. It uses the high level consumer API provided
 # by Kafka to read messages from the broker. It also maintains the state of what has been
 # consumed using Zookeeper. The default input codec is json
 #
-# The only required configuration is the topic name. By default it will connect to a Zookeeper
+# The only required configuration is the `topic_id`. By default it will connect to a Zookeeper
 # running on localhost. All the broker information is read from Zookeeper state
 #
 # Ideally you should have as many threads as the number of partitions for a perfect balance --
@@ -35,11 +35,18 @@ class LogStash::Inputs::Kafka < LogStash::Inputs::Base
   # belongs. By setting the same group id multiple processes indicate that they are all part of
   # the same consumer group.
   config :group_id, :validate => :string, :default => 'logstash'
-  # The topic to consume messages from
-  config :topic_id, :validate => :string, :required => true
+  # The topic or Whitelist filter to consume messages from
+  config :topic_id, :validate => :string, :default => nil
+  # Indicate if `topic_id` is a blacklist to exclude from consumption.
+  config :blacklist_topics, :validate => :boolean, :default => false
   # Reset the consumer group to start at the earliest message present in the log by clearing any
-  # offsets for the group stored in Zookeeper. This is destructive!
+  # offsets for the group stored in Zookeeper. This is destructive! Must be used in conjunction
+  # with auto_offset_reset => 'smallest'
   config :reset_beginning, :validate => :boolean, :default => false
+  # `smallest` or `largest` - (optional, default `largest`) If the consumer does not already
+  # have an established offset or offset is invalid, start with the earliest message present in the
+  # log (`smallest`) or after the last message in the log (`largest`).
+  config :auto_offset_reset, :validate => %w( largest smallest ), :default => 'largest'
   # Number of threads to read from the partitions. Ideally you should have as many threads as the
   # number of partitions for a perfect balance. More threads than partitions means that some
   # threads will be idle. Less threads means a single thread could be consuming from more than
@@ -75,23 +82,28 @@ class LogStash::Inputs::Kafka < LogStash::Inputs::Base
   public
   def register
     LogStash::Logger.setup_log4j(@logger)
-    require 'jruby-kafka'
-
     options = {
         :zk_connect => @zk_connect,
         :group_id => @group_id,
-        :topic_id => @topic_id,
+        :auto_offset_reset => @auto_offset_reset,
         :rebalance_max_retries => @rebalance_max_retries,
         :rebalance_backoff_ms => @rebalance_backoff_ms,
         :consumer_timeout_ms => @consumer_timeout_ms,
         :consumer_restart_on_error => @consumer_restart_on_error,
         :consumer_restart_sleep_ms => @consumer_restart_sleep_ms,
         :consumer_id => @consumer_id,
-        :fetch_message_max_bytes => @fetch_message_max_bytes
+        :fetch_message_max_bytes => @fetch_message_max_bytes,
+        :filter_topics => @black_list
     }
     if @reset_beginning
       options[:reset_beginning] = 'from-beginning'
     end # if :reset_beginning
+    if @blacklist_topics
+      options[:filter_topics] = @topic_id
+    else
+      options[:allow_topics] = @topic_id
+    end # if :blacklist_topics
+
     @kafka_client_queue = SizedQueue.new(@queue_size)
     @consumer_group = create_consumer_group(options)
     @logger.info('Registering kafka', :group_id => @group_id, :topic_id => @topic_id, :zk_connect => @zk_connect)
@@ -107,14 +119,14 @@ class LogStash::Inputs::Kafka < LogStash::Inputs::Base
       begin
         while true
           event = @kafka_client_queue.pop
-          queue_event("#{event}",logstash_queue)
+          queue_event(event, logstash_queue)
         end
       rescue LogStash::ShutdownSignal
         @logger.info('Kafka got shutdown signal')
         @consumer_group.shutdown
       end
       until @kafka_client_queue.empty?
-        queue_event("#{@kafka_client_queue.pop}",logstash_queue)
+        queue_event(@kafka_client_queue.pop,logstash_queue)
       end
       @logger.info('Done running kafka input')
     rescue => e
@@ -135,17 +147,21 @@ class LogStash::Inputs::Kafka < LogStash::Inputs::Base
   end
 
   private
-  def queue_event(msg, output_queue)
+  def queue_event(message_and_metadata, output_queue)
     begin
-      @codec.decode(msg) do |event|
+      @codec.decode("#{message_and_metadata.message}") do |event|
         decorate(event)
         if @decorate_events
-          event['kafka'] = {'msg_size' => msg.bytesize, 'topic' => @topic_id, 'consumer_group' => @group_id}
+          event['kafka'] = {'msg_size' => event['message'].bytesize,
+                            'topic' => message_and_metadata.topic,
+                            'consumer_group' => @group_id,
+                            'partition' => message_and_metadata.partition,
+                            'key' => message_and_metadata.key}
         end
         output_queue << event
       end # @codec.decode
     rescue => e # parse or event creation error
-      @logger.error('Failed to create event', :message => msg, :exception => e,
+      @logger.error('Failed to create event', :message => "#{message_and_metadata.message}", :exception => e,
                     :backtrace => e.backtrace)
     end # begin
   end # def queue_event
