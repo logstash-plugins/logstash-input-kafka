@@ -6,8 +6,8 @@ require 'jruby-kafka'
 # by Kafka to read messages from the broker. It also maintains the state of what has been
 # consumed using Zookeeper. The default input codec is json
 #
-# The only required configuration is the `topic_id`. By default it will connect to a Zookeeper
-# running on localhost. All the broker information is read from Zookeeper state
+# You must configure `topic_id`, `white_list` or `black_list`. By default it will connect to a
+# Zookeeper running on localhost. All the broker information is read from Zookeeper state
 #
 # Ideally you should have as many threads as the number of partitions for a perfect balance --
 # more threads than partitions means that some threads will be idle
@@ -35,8 +35,12 @@ class LogStash::Inputs::Kafka < LogStash::Inputs::Base
   # belongs. By setting the same group id multiple processes indicate that they are all part of
   # the same consumer group.
   config :group_id, :validate => :string, :default => 'logstash'
-  # The topic or Whitelist filter to consume messages from
+  # The topic to consume messages from
   config :topic_id, :validate => :string, :default => nil
+  # Whitelist of topics to include for consumption.
+  config :white_list, :validate => :string, :default => nil
+  # Blacklist of topics to exclude from consumption.
+  config :black_list, :validate => :string, :default => nil
   # Indicate if `topic_id` is a blacklist to exclude from consumption.
   config :blacklist_topics, :validate => :boolean, :default => false
   # Reset the consumer group to start at the earliest message present in the log by clearing any
@@ -85,6 +89,7 @@ class LogStash::Inputs::Kafka < LogStash::Inputs::Base
     options = {
         :zk_connect => @zk_connect,
         :group_id => @group_id,
+        :topic_id => @topic_id,
         :auto_offset_reset => @auto_offset_reset,
         :rebalance_max_retries => @rebalance_max_retries,
         :rebalance_backoff_ms => @rebalance_backoff_ms,
@@ -93,17 +98,18 @@ class LogStash::Inputs::Kafka < LogStash::Inputs::Base
         :consumer_restart_sleep_ms => @consumer_restart_sleep_ms,
         :consumer_id => @consumer_id,
         :fetch_message_max_bytes => @fetch_message_max_bytes,
+        :allow_topics => @white_list,
         :filter_topics => @black_list
     }
     if @reset_beginning
       options[:reset_beginning] = 'from-beginning'
     end # if :reset_beginning
-    if @blacklist_topics
-      options[:filter_topics] = @topic_id
-    else
-      options[:allow_topics] = @topic_id
-    end # if :blacklist_topics
-
+    topic_or_filter = [@topic_id, @white_list, @black_list].compact
+    if topic_or_filter.count == 0
+      raise('topic_id, white_list or black_list required.')
+    elsif topic_or_filter.count > 1
+      raise('Invalid combination of topic_id, white_list or black_list. Use only one.')
+    end
     @kafka_client_queue = SizedQueue.new(@queue_size)
     @consumer_group = create_consumer_group(options)
     @logger.info('Registering kafka', :group_id => @group_id, :topic_id => @topic_id, :zk_connect => @zk_connect)
