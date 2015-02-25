@@ -14,8 +14,9 @@ See http://kafka.apache.org/documentation.html#consumerconfigs for details about
 
     input {
         kafka {
-            topic_id => ... # string (required), The topic to consume messages from. Can be a java regular expression for whitelist of topics.
-            blacklist_topics => ... # boolean (optional) default: false, Indicate if topic_id is a blacklist to exclude from consumption.
+            topic_id => ... # string (optional), default: nil, The topic to consume messages from. Can be a java regular expression for whitelist of topics.
+            white_list => ... # string (optional), default: nil, Blacklist of topics to exclude from consumption.
+            black_list => ... # string (optional), default: nil, Whitelist of topics to include for consumption.
             zk_connect => ... # string (optional), default: "localhost:2181", Specifies the ZooKeeper connection string in the form hostname:port
             group_id => ... # string (optional), default: "logstash", A string that uniquely identifies the group of consumer processes
             reset_beginning => ... # boolean (optional), default: false, Specify whether to jump to beginning of the queue when there is no initial offset in ZK
@@ -28,8 +29,8 @@ See http://kafka.apache.org/documentation.html#consumerconfigs for details about
             consumer_restart_on_error => ... # boolean (optional), default: true
             consumer_restart_sleep_ms => ... # number (optional), default: 0
             decorate_events => ... # boolean (optional), default: false, Option to add Kafka metadata like topic, message size to the event
-            consumer_id => ... # string (optional) default: nil
-            fetch_message_max_bytes => ... # number (optional) default: 1048576
+            consumer_id => ... # string (optional), default: nil
+            fetch_message_max_bytes => ... # number (optional), default: 1048576
         }
     }
 
