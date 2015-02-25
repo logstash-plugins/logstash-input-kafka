@@ -104,9 +104,9 @@ class LogStash::Inputs::Kafka < LogStash::Inputs::Base
     end # if :reset_beginning
     topic_or_filter = [@topic_id, @white_list, @black_list].compact
     if topic_or_filter.count == 0
-      raise('topic_id, white_list or black_list required.')
+      raise LogStash::ConfigurationError, 'topic_id, white_list or black_list required.'
     elsif topic_or_filter.count > 1
-      raise('Invalid combination of topic_id, white_list or black_list. Use only one.')
+      raise LogStash::ConfigurationError, 'Invalid combination of topic_id, white_list or black_list. Use only one.'
     end
     @kafka_client_queue = SizedQueue.new(@queue_size)
     @consumer_group = create_consumer_group(options)
