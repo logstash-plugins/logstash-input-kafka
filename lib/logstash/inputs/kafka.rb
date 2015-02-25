@@ -41,8 +41,6 @@ class LogStash::Inputs::Kafka < LogStash::Inputs::Base
   config :white_list, :validate => :string, :default => nil
   # Blacklist of topics to exclude from consumption.
   config :black_list, :validate => :string, :default => nil
-  # Indicate if `topic_id` is a blacklist to exclude from consumption.
-  config :blacklist_topics, :validate => :boolean, :default => false
   # Reset the consumer group to start at the earliest message present in the log by clearing any
   # offsets for the group stored in Zookeeper. This is destructive! Must be used in conjunction
   # with auto_offset_reset => 'smallest'
