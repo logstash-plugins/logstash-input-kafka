@@ -80,6 +80,11 @@ class LogStash::Inputs::Kafka < LogStash::Inputs::Base
   # maximum message size the server allows or else it is possible for the producer to send
   # messages larger than the consumer can fetch.
   config :fetch_message_max_bytes, :validate => :number, :default => 1048576
+  # The serializer class for messages. The default decoder takes a byte[] and returns the same byte[]
+  config :decoder_class, :validate => :string, :default => 'kafka.serializer.DefaultDecoder'
+  # The serializer class for keys (defaults to the same default as for messages)
+  config :key_decoder_class, :validate => :string, :default => 'kafka.serializer.DefaultDecoder'
+
 
   public
   def register
@@ -97,7 +102,9 @@ class LogStash::Inputs::Kafka < LogStash::Inputs::Base
         :consumer_id => @consumer_id,
         :fetch_message_max_bytes => @fetch_message_max_bytes,
         :allow_topics => @white_list,
-        :filter_topics => @black_list
+        :filter_topics => @black_list,
+        :value_decoder_class => @decoder_class,
+        :key_decoder_class => @key_decoder_class
     }
     if @reset_beginning
       options[:reset_beginning] = 'from-beginning'
