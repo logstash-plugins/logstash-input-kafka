@@ -70,7 +70,13 @@ class LogStash::Inputs::Kafka < LogStash::Inputs::Base
   config :consumer_restart_on_error, :validate => :boolean, :default => true
   # Time in millis to wait for consumer to restart after an error
   config :consumer_restart_sleep_ms, :validate => :number, :default => 0
-  # Option to add Kafka metadata like topic, message size to the event
+  # Option to add Kafka metadata like topic, message size to the event.
+  # This will add a field named `kafka` to the logstash event containing the following attributes:
+  #   `msg_size`: The complete serialized size of this message in bytes (including crc, header attributes, etc)
+  #   `topic`: The topic this message is associated with
+  #   `consumer_group`: The consumer group used to read in this event
+  #   `partition`: The partition this message is associated with
+  #   `key`: A ByteBuffer containing the message key
   config :decorate_events, :validate => :boolean, :default => false
   # A unique id for the consumer; generated automatically if not set.
   config :consumer_id, :validate => :string, :default => nil
@@ -163,7 +169,7 @@ class LogStash::Inputs::Kafka < LogStash::Inputs::Base
       @codec.decode("#{message_and_metadata.message}") do |event|
         decorate(event)
         if @decorate_events
-          event['kafka'] = {'msg_size' => event['message'].bytesize,
+          event['kafka'] = {'msg_size' => message_and_metadata.message.size,
                             'topic' => message_and_metadata.topic,
                             'consumer_group' => @group_id,
                             'partition' => message_and_metadata.partition,
