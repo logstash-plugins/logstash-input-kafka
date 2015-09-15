@@ -1,6 +1,7 @@
 require 'logstash/namespace'
 require 'logstash/inputs/base'
 require 'jruby-kafka'
+require 'stud/interval'
 
 # This input will read events from a Kafka topic. It uses the high level consumer API provided
 # by Kafka to read messages from the broker. It also maintains the state of what has been
@@ -133,30 +134,31 @@ class LogStash::Inputs::Kafka < LogStash::Inputs::Base
     @logger.info('Running kafka', :group_id => @group_id, :topic_id => @topic_id, :zk_connect => @zk_connect)
     begin
       @consumer_group.run(@consumer_threads,@kafka_client_queue)
-      begin
-        while true
+
+      while !stop?
+        if !@kafka_client_queue.empty?
           event = @kafka_client_queue.pop
           queue_event(event, logstash_queue)
         end
-      rescue LogStash::ShutdownSignal
-        @logger.info('Kafka got shutdown signal')
-        @consumer_group.shutdown
       end
+
       until @kafka_client_queue.empty?
         queue_event(@kafka_client_queue.pop,logstash_queue)
       end
+
       @logger.info('Done running kafka input')
     rescue => e
       @logger.warn('kafka client threw exception, restarting',
                    :exception => e)
-      if @consumer_group.running?
-        @consumer_group.shutdown
-      end
-      sleep(Float(@consumer_restart_sleep_ms) * 1 / 1000)
-      retry
+      Stud.stoppable_sleep(Float(@consumer_restart_sleep_ms) * 1 / 1000) { stop? }
+      retry if !stop?
     end
-    finished
   end # def run
+
+  public
+  def stop
+    @consumer_group.shutdown if @consumer_group.running?
+  end
 
   private
   def create_consumer_group(options)
@@ -182,5 +184,4 @@ class LogStash::Inputs::Kafka < LogStash::Inputs::Base
                     :backtrace => e.backtrace)
     end # begin
   end # def queue_event
-
 end #class LogStash::Inputs::Kafka
