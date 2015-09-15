@@ -7,8 +7,7 @@ class LogStash::Inputs::TestKafka < LogStash::Inputs::Kafka
   private
   def queue_event(msg, output_queue)
     super(msg, output_queue)
-    # need to raise exception here to stop the infinite loop
-    raise LogStash::ShutdownSignal
+    do_stop
   end
 end
 
@@ -30,7 +29,26 @@ class TestKafkaGroup < Kafka::Group
   end
 end
 
-describe 'inputs/kafka' do
+class LogStash::Inputs::TestInfiniteKafka < LogStash::Inputs::Kafka
+  private
+  def queue_event(msg, output_queue)
+    super(msg, output_queue)
+  end
+end
+
+class TestInfiniteKafkaGroup < Kafka::Group
+  def run(a_num_threads, a_queue)
+    blah = TestMessageAndMetadata.new(@topic, 0, nil, 'Kafka message')
+    Thread.new do
+      while true
+        a_queue << blah
+        sleep 0.2
+      end
+    end
+  end
+end
+
+describe LogStash::Inputs::Kafka do
   let (:kafka_config) {{'topic_id' => 'test'}}
   let (:empty_config) {{}}
   let (:bad_kafka_config) {{'topic_id' => 'test', 'white_list' => 'other_topic'}}
@@ -55,6 +73,18 @@ describe 'inputs/kafka' do
   it "should fail without topic configs" do
     input = LogStash::Plugin.lookup("input", "kafka").new(bad_kafka_config)
     expect {input.register}.to raise_error
+  end
+
+  it_behaves_like "an interruptible input plugin" do
+    let(:config) { kafka_config }
+    let(:mock_kafka_plugin) { LogStash::Inputs::TestInfiniteKafka.new(config) }
+
+    before :each do
+      allow(LogStash::Inputs::Kafka).to receive(:new).and_return(mock_kafka_plugin)
+      expect(subject).to receive(:create_consumer_group) do |options|
+        TestInfiniteKafkaGroup.new(options)
+      end
+    end
   end
 
   it 'should populate kafka config with default values' do
@@ -98,5 +128,4 @@ describe 'inputs/kafka' do
     insist { e['kafka']['partition'] } == 0
     insist { e['kafka']['key'] } == nil
   end
-
 end
