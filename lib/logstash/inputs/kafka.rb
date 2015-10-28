@@ -90,6 +90,8 @@ class LogStash::Inputs::Kafka < LogStash::Inputs::Base
   config :decoder_class, :validate => :string, :default => 'kafka.serializer.DefaultDecoder'
   # The serializer class for keys (defaults to the same default as for messages)
   config :key_decoder_class, :validate => :string, :default => 'kafka.serializer.DefaultDecoder'
+  # The frequency in ms that the consumer offsets are committed to zookeeper.
+  config :auto_commit_interval, :validate => :string, :default => '1000'
 
 
   public
@@ -110,7 +112,8 @@ class LogStash::Inputs::Kafka < LogStash::Inputs::Base
         :allow_topics => @white_list,
         :filter_topics => @black_list,
         :value_decoder_class => @decoder_class,
-        :key_decoder_class => @key_decoder_class
+        :key_decoder_class => @key_decoder_class,
+        :auto_commit_interval => @auto_commit_interval
     }
     if @reset_beginning
       options[:reset_beginning] = 'from-beginning'
