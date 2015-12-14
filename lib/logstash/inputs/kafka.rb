@@ -136,10 +136,8 @@ class LogStash::Inputs::Kafka < LogStash::Inputs::Base
       @consumer_group.run(@consumer_threads,@kafka_client_queue)
 
       while !stop?
-        if !@kafka_client_queue.empty?
-          event = @kafka_client_queue.pop
-          queue_event(event, logstash_queue)
-        end
+        event = @kafka_client_queue.pop
+        queue_event(event, logstash_queue)
       end
 
       until @kafka_client_queue.empty?
