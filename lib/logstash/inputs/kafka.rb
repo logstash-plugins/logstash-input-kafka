@@ -4,13 +4,20 @@ require 'stud/interval'
 require 'java'
 require 'logstash-input-kafka_jars.rb'
 
-# This input will read events from a Kafka topic. It uses the high level consumer API provided
-# by Kafka to read messages from the broker. It also maintains the state of what has been
-# consumed using Zookeeper. The default input codec is json
+# This input will read events from a Kafka topic. It uses the the newly designed
+# 0.9 version of consumer API[https://cwiki.apache.org/confluence/display/KAFKA/Kafka+0.9+Consumer+Rewrite+Design] 
+# provided by Kafka to read messages from the broker. This consumer is backward compatible and can
+# be used with 0.8.x brokers. 
 #
-# You must configure `topic_id`, `white_list` or `black_list`. By default it will connect to a
-# Zookeeper running on localhost. All the broker information is read from Zookeeper state
+# The Logstash consumer handles group management and uses the default Kafka offset management
+# strategy using Kafka topics.
 #
+# Logstash instances by default form a single logical group to subscribe to Kafka topics
+# Each Logstash Kafka consumer can run multiple threads to increase read throughput. Alternatively, 
+# you could run multiple Logstash instances with the same `group_id` to spread the load across
+# physical machines. Messages in a topic will be distributed to all Logstash instances with 
+# the same `group_id`.
+# 
 # Ideally you should have as many threads as the number of partitions for a perfect balance --
 # more threads than partitions means that some threads will be idle
 #
@@ -31,7 +38,7 @@ class LogStash::Inputs::Kafka < LogStash::Inputs::Base
   # * largest: automatically reset the offset to the largest offset
   # * disable: throw exception to the consumer if no previous offset is found for the consumer's group
   # * anything else: throw exception to the consumer.
-  config :auto_commit_reset, :validate => :string, :default => "true"
+  config :auto_offset_reset, :validate => :string
   # A list of URLs to use for establishing the initial connection to the cluster. 
   # This list should be in the form of `host1:port1,host2:port2` These urls are just used 
   # for the initial connection to discover the full cluster membership (which may change dynamically) 
@@ -71,7 +78,7 @@ class LogStash::Inputs::Kafka < LogStash::Inputs::Base
   # It can be adjusted even lower to control the expected time for normal rebalances.
   config :heartbeat_interval_ms, :validate => :string
   # Java Class used to deserialize the record's key
-  config :key_deserializer, :validate => :string, :default => "org.apache.kafka.common.serialization.StringDeserializer"
+  config :key_deserializer_class, :validate => :string, :default => "org.apache.kafka.common.serialization.StringDeserializer"
   # The maximum amount of data per-partition the server will return. The maximum total memory used for a 
   # request will be <code>#partitions * max.partition.fetch.bytes</code>. This size must be at least 
   # as large as the maximum message size the server allows or else it is possible for the producer to 
@@ -99,7 +106,7 @@ class LogStash::Inputs::Kafka < LogStash::Inputs::Base
   # and a rebalance operation is triggered for the group identified by `group_id`
   config :session_timeout_ms, :validate => :string, :default => "30000"
   # Java Class used to deserialize the record's value
-  config :value_deserializer, :validate => :string, :default => "org.apache.kafka.common.serialization.StringDeserializer"
+  config :value_deserializer_class, :validate => :string, :default => "org.apache.kafka.common.serialization.StringDeserializer"
   # Ideally you should have as many threads as the number of partitions for a perfect 
   # balance — more threads than partitions means that some threads will be idle
   config :num_threads, :validate => :number, :default => 1
@@ -107,17 +114,15 @@ class LogStash::Inputs::Kafka < LogStash::Inputs::Base
   config :topics, :validate => :array, :required => true
   # Time kafka consumer will wait to receive new messages from topics
   config :poll_timeout_ms, :validate => :number, :default => 100
-  config :max_messages, :validate => :number
 
   public
   def register
-    @message_count = 0
     @runner_threads = []
   end # def register
 
   public
   def run(logstash_queue)
-    @runner_consumers = num_threads.times.map { || new_consumer }
+    @runner_consumers = num_threads.times.map { || create_consumer }
     @runner_threads = @runner_consumers.map { |consumer| thread_runner(logstash_queue, consumer) }
     @runner_threads.each { |t| t.join }
   end # def run
@@ -135,8 +140,6 @@ class LogStash::Inputs::Kafka < LogStash::Inputs::Base
         while !stop?
           records = consumer.poll(poll_timeout_ms);
           for record in records do
-            break if !max_messages.nil? && @message_count >= max_messages
-            @message_count = @message_count.next
             @codec.decode(record.value.to_s) do |event|
               logstash_queue << event
             end
@@ -151,15 +154,31 @@ class LogStash::Inputs::Kafka < LogStash::Inputs::Base
   end
 
   private
-  def new_consumer 
+  def create_consumer 
     props = java.util.Properties.new
-    props.put("bootstrap.servers", bootstrap_servers)
-    props.put("group.id", group_id);
-    props.put("enable.auto.commit", enable_auto_commit);
-    props.put("auto.commit.interval.ms", auto_commit_interval_ms);
-    props.put("session.timeout.ms", session_timeout_ms);
-    props.put("key.deserializer", key_deserializer);
-    props.put("value.deserializer", value_deserializer);
-    org.apache.kafka.clients.consumer.KafkaConsumer.new(props);
+    kafka = org.apache.kafka.clients.consumer.ConsumerConfig
+
+    props.put(kafka::AUTO_COMMIT_INTERVAL_MS_CONFIG, auto_commit_interval_ms)
+    props.put(kafka::AUTO_OFFSET_RESET_CONFIG, auto_offset_reset)
+    props.put(kafka::BOOTSTRAP_SERVERS_CONFIG, bootstrap_servers)
+    props.put(kafka::CHECK_CRCS_CONFIG, check_crcs)
+    props.put(kafka::CLIENT_ID_CONFIG, client_id)
+    props.put(kafka::CONNECTIONS_MAX_IDLE_MS_CONFIG, connections_max_idle_ms)
+    props.put(kafka::ENABLE_AUTO_COMMIT_CONFIG, enable_auto_commit)
+    props.put(kafka::FETCH_MAX_WAIT_MS_CONFIG, fetch_max_wait_ms)
+    props.put(kafka::FETCH_MIN_BYTES_CONFIG, fetch_min_bytes)
+    props.put(kafka::GROUP_ID_CONFIG, group_id)
+    props.put(kafka::HEARTBEAT_INTERVAL_MS_CONFIG, heartbeat_interval_ms)
+    props.put(kafka::KEY_DESERIALIZER_CLASS_CONFIG, key_deserializer_class)
+    props.put(kafka::MAX_PARTITION_FETCH_BYTES_CONFIG, max_partition_fetch_bytes)
+    props.put(kafka::PARTITION_ASSIGNMENT_STRATEGY_CONFIG, partition_assignment_strategy)
+    props.put(kafka::RECEIVE_BUFFER_CONFIG, receive_buffer_bytes)
+    props.put(kafka::RECONNECT_BACKOFF_MS_CONFIG, reconnect_backoff_ms)
+    props.put(kafka::REQUEST_TIMEOUT_MS_CONFIG, request_timeout_ms)  
+    props.put(kafka::RETRY_BACKOFF_MS_CONFIG, retry_backoff_ms)
+    props.put(kafka::SESSION_TIMEOUT_MS_CONFIG, session_timeout_ms)
+    props.put(kafka::VALUE_DESERIALIZER_CLASS_CONFIG, value_deserializer_class)
+    
+    org.apache.kafka.clients.consumer.KafkaConsumer.new(props)
   end
 end #class LogStash::Inputs::Kafka
