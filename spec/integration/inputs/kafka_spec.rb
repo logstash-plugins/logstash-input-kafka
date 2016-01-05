@@ -17,5 +17,6 @@ describe "input/kafka", :integration => true do
     1000.times do |i|
       producer.send(org.apache.kafka.clients.producer.ProducerRecord("test", i.to_s, i.to_s))
     end
+    # trying this on travis
   end
 end
