@@ -1,21 +1,60 @@
 # encoding: utf-8
 require "logstash/devutils/rspec/spec_helper"
 require "logstash/inputs/kafka"
+require "digest"
 
 describe "input/kafka", :integration => true do
-  before do
-    props = java.util.Properties.new
-    props.put("bootstrap.servers", bootstrap_servers)
-    props.put("acks", "all")
-    props.put("retries", "0")
-    props.put("batch.size", "16384")
-    props.put("linger.ms", "1")
-    props.put("buffer.memory", "33554432")
-    props.put("key.serializer", "org.apache.kafka.common.serialization.StringSerializer")
-    props.put("value.serializer", "org.apache.kafka.common.serialization.StringSerializer")
-    producer = org.apache.kafka.clients.producer.KafkaProducer.new(props)
-    1000.times do |i|
-      producer.send(org.apache.kafka.clients.producer.ProducerRecord("test", i.to_s, i.to_s))
+  let(:partition3_config) { { 'topics' => ['topic3'], 'codec' => 'plain', 'auto_offset_reset' => 'earliest'} }
+  let(:snappy_config) { { 'topics' => ['snappy_topic'], 'codec' => 'plain', 'auto_offset_reset' => 'earliest'} }
+  let(:lz4_config) { { 'topics' => ['lz4_topic'], 'codec' => 'plain', 'auto_offset_reset' => 'earliest'} }
+  
+  let(:tries) { 60 }
+  let(:num_events) { 103 }
+  
+  def thread_it(kafka_input, queue)
+    Thread.new do
+      begin
+        kafka_input.run(queue)
+      end
     end
   end
+  
+  def wait_for_events(queue, num_events)
+    begin
+      timeout(30) do
+        until queue.length == num_events do
+          sleep 1
+          next
+        end
+      end
+    end
+  end  
+    
+  it "should consume all messages from 3-partition topic" do
+    kafka_input = LogStash::Inputs::Kafka.new(partition3_config)
+    queue = Array.new
+    t = thread_it(kafka_input, queue)
+    t.run
+    wait_for_events(queue, num_events)
+    expect(queue.size).to eq(num_events)
+  end
+  
+  it "should consume all messages from snappy 3-partition topic" do
+    kafka_input = LogStash::Inputs::Kafka.new(snappy_config)
+    queue = Array.new
+    t = thread_it(kafka_input, queue)
+    t.run
+    wait_for_events(queue, num_events)
+    expect(queue.size).to eq(num_events)
+  end
+
+  it "should consume all messages from lz4 3-partition topic" do
+    kafka_input = LogStash::Inputs::Kafka.new(lz4_config)
+    queue = Array.new
+    t = thread_it(kafka_input, queue)
+    t.run
+    wait_for_events(queue, num_events)
+    expect(queue.size).to eq(num_events)
+  end
+  
 end

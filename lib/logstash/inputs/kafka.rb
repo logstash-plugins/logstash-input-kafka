@@ -6,10 +6,11 @@ require 'logstash-input-kafka_jars.rb'
 
 # This input will read events from a Kafka topic. It uses the the newly designed
 # 0.9 version of consumer API[https://cwiki.apache.org/confluence/display/KAFKA/Kafka+0.9+Consumer+Rewrite+Design] 
-# provided by Kafka to read messages from the broker. This consumer is backward compatible and can
-# be used with 0.8.x brokers. 
+# provided by Kafka to read messages from the broker.
 #
-# The Logstash consumer handles group management and uses the default Kafka offset management
+# NOTE: This consumer is not backward compatible with 0.8.x brokers and needs a 0.9 broker.
+#
+# The Logstash Kafka consumer handles group management and uses the default offset management
 # strategy using Kafka topics.
 #
 # Logstash instances by default form a single logical group to subscribe to Kafka topics
@@ -24,6 +25,9 @@ require 'logstash-input-kafka_jars.rb'
 # For more information see http://kafka.apache.org/documentation.html#theconsumer
 #
 # Kafka consumer configuration: http://kafka.apache.org/documentation.html#consumerconfigs
+#
+# This version also adds support for SSL/TLS security connection to Kafka. By default SSL is 
+# disabled but can be turned on as needed.
 #
 class LogStash::Inputs::Kafka < LogStash::Inputs::Base
   config_name 'kafka'
@@ -55,6 +59,9 @@ class LogStash::Inputs::Kafka < LogStash::Inputs::Base
   config :client_id, :validate => :string, :default => "logstash"
   # Close idle connections after the number of milliseconds specified by this config.
   config :connections_max_idle_ms, :validate => :string
+  # Ideally you should have as many threads as the number of partitions for a perfect 
+  # balance — more threads than partitions means that some threads will be idle
+  config :consumer_threads, :validate => :number, :default => 1
   # If true, periodically commit to Kafka the offsets of messages already returned by the consumer. 
   # This committed offset will be used when the process fails as the position from 
   # which the consumption will begin.
@@ -107,22 +114,32 @@ class LogStash::Inputs::Kafka < LogStash::Inputs::Base
   config :session_timeout_ms, :validate => :string, :default => "30000"
   # Java Class used to deserialize the record's value
   config :value_deserializer_class, :validate => :string, :default => "org.apache.kafka.common.serialization.StringDeserializer"
-  # Ideally you should have as many threads as the number of partitions for a perfect 
-  # balance — more threads than partitions means that some threads will be idle
-  config :num_threads, :validate => :number, :default => 1
   # A list of topics to subscribe to.
   config :topics, :validate => :array, :required => true
   # Time kafka consumer will wait to receive new messages from topics
   config :poll_timeout_ms, :validate => :number, :default => 100
+  # Enable SSL/TLS secured communication to Kafka broker. Note that secure communication 
+  # is only available with a broker running v0.9 of Kafka.
+  config :ssl, :validate => :boolean, :default => false
+  # The JKS truststore path to validate the Kafka broker's certificate.
+  config :ssl_truststore_location, :validate => :path
+  # The truststore password
+  config :ssl_truststore_password, :validate => :password
+  # If client authentication is required, this setting stores the keystore path.
+  config :ssl_keystore_location, :validate => :path
+  # If client authentication is required, this setting stores the keystore password
+  config :ssl_keystore_password, :validate => :password
 
+  
   public
   def register
+    LogStash::Logger.setup_log4j(@logger)
     @runner_threads = []
   end # def register
 
   public
   def run(logstash_queue)
-    @runner_consumers = num_threads.times.map { || create_consumer }
+    @runner_consumers = consumer_threads.times.map { || create_consumer }
     @runner_threads = @runner_consumers.map { |consumer| thread_runner(logstash_queue, consumer) }
     @runner_threads.each { |t| t.join }
   end # def run
@@ -141,6 +158,7 @@ class LogStash::Inputs::Kafka < LogStash::Inputs::Base
           records = consumer.poll(poll_timeout_ms);
           for record in records do
             @codec.decode(record.value.to_s) do |event|
+              decorate(event)
               logstash_queue << event
             end
           end
@@ -179,7 +197,17 @@ class LogStash::Inputs::Kafka < LogStash::Inputs::Base
       props.put(kafka::RETRY_BACKOFF_MS_CONFIG, retry_backoff_ms) unless retry_backoff_ms.nil?
       props.put(kafka::SESSION_TIMEOUT_MS_CONFIG, session_timeout_ms) unless session_timeout_ms.nil?
       props.put(kafka::VALUE_DESERIALIZER_CLASS_CONFIG, value_deserializer_class)
-      
+
+      if ssl
+        props.put("security.protocol", "SSL")
+        props.put("ssl.truststore.location", ssl_truststore_location)
+        props.put("ssl.truststore.password", ssl_truststore_password.value) unless ssl_truststore_password.nil?
+
+        #Client auth stuff
+        props.put("ssl.keystore.location", ssl_keystore_location) unless ssl_keystore_location.nil?
+        props.put("ssl.keystore.password", ssl_keystore_password.value) unless ssl_keystore_password.nil?
+      end
+
       org.apache.kafka.clients.consumer.KafkaConsumer.new(props)
     rescue => e
       logger.error("Unable to create Kafka consumer from given configuration", :kafka_error_message => e)
