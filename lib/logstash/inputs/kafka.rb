@@ -114,7 +114,19 @@ class LogStash::Inputs::Kafka < LogStash::Inputs::Base
   config :topics, :validate => :array, :required => true
   # Time kafka consumer will wait to receive new messages from topics
   config :poll_timeout_ms, :validate => :number, :default => 100
+  # Enable SSL/TLS secured communication to Kafka broker. Note that secure communication 
+  # is only available with a broker running v0.9 of Kafka.
+  config :ssl, :validate => :boolean, :default => false
+  # The JKS truststore path to validate the Kafka broker's certificate.
+  config :ssl_truststore_location, :validate => :path
+  # The truststore password
+  config :ssl_truststore_password, :validate => :password
+  # If client authentication is required, this setting stores the keystore path.
+  config :ssl_keystore_location, :validate => :path
+  # If client authentication is required, this setting stores the keystore password
+  config :ssl_keystore_password, :validate => :password
 
+  
   public
   def register
     @runner_threads = []
@@ -179,7 +191,17 @@ class LogStash::Inputs::Kafka < LogStash::Inputs::Base
       props.put(kafka::RETRY_BACKOFF_MS_CONFIG, retry_backoff_ms) unless retry_backoff_ms.nil?
       props.put(kafka::SESSION_TIMEOUT_MS_CONFIG, session_timeout_ms) unless session_timeout_ms.nil?
       props.put(kafka::VALUE_DESERIALIZER_CLASS_CONFIG, value_deserializer_class)
-      
+
+      if ssl
+        props.put("security.protocol", "SSL")
+        props.put("ssl.truststore.location", ssl_truststore_location)
+        props.put("ssl.truststore.password", ssl_truststore_password.value) unless ssl_truststore_password.nil?
+
+        #Client auth stuff
+        props.put("ssl.truststore.location", ssl_keystore_location) unless ssl_keystore_location.nil?
+        props.put("ssl.truststore.password", ssl_keystore_password.value) unless ssl_keystore_password.nil?
+      end
+
       org.apache.kafka.clients.consumer.KafkaConsumer.new(props)
     rescue => e
       logger.error("Unable to create Kafka consumer from given configuration", :kafka_error_message => e)
