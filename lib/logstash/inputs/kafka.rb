@@ -34,9 +34,9 @@ class LogStash::Inputs::Kafka < LogStash::Inputs::Base
   config :auto_commit_interval_ms, :validate => :string, :default => "10"
   # What to do when there is no initial offset in Kafka or if an offset is out of range:
   #
-  # * smallest: automatically reset the offset to the smallest offset
-  # * largest: automatically reset the offset to the largest offset
-  # * disable: throw exception to the consumer if no previous offset is found for the consumer's group
+  # * earliest: automatically reset the offset to the earliest offset
+  # * latest: automatically reset the offset to the latest offset
+  # * none: throw exception to the consumer if no previous offset is found for the consumer's group
   # * anything else: throw exception to the consumer.
   config :auto_offset_reset, :validate => :string
   # A list of URLs to use for establishing the initial connection to the cluster. 
@@ -154,31 +154,36 @@ class LogStash::Inputs::Kafka < LogStash::Inputs::Base
   end
 
   private
-  def create_consumer 
-    props = java.util.Properties.new
-    kafka = org.apache.kafka.clients.consumer.ConsumerConfig
+  def create_consumer
+    begin
+      props = java.util.Properties.new
+      kafka = org.apache.kafka.clients.consumer.ConsumerConfig
 
-    props.put(kafka::AUTO_COMMIT_INTERVAL_MS_CONFIG, auto_commit_interval_ms)
-    props.put(kafka::AUTO_OFFSET_RESET_CONFIG, auto_offset_reset)
-    props.put(kafka::BOOTSTRAP_SERVERS_CONFIG, bootstrap_servers)
-    props.put(kafka::CHECK_CRCS_CONFIG, check_crcs)
-    props.put(kafka::CLIENT_ID_CONFIG, client_id)
-    props.put(kafka::CONNECTIONS_MAX_IDLE_MS_CONFIG, connections_max_idle_ms)
-    props.put(kafka::ENABLE_AUTO_COMMIT_CONFIG, enable_auto_commit)
-    props.put(kafka::FETCH_MAX_WAIT_MS_CONFIG, fetch_max_wait_ms)
-    props.put(kafka::FETCH_MIN_BYTES_CONFIG, fetch_min_bytes)
-    props.put(kafka::GROUP_ID_CONFIG, group_id)
-    props.put(kafka::HEARTBEAT_INTERVAL_MS_CONFIG, heartbeat_interval_ms)
-    props.put(kafka::KEY_DESERIALIZER_CLASS_CONFIG, key_deserializer_class)
-    props.put(kafka::MAX_PARTITION_FETCH_BYTES_CONFIG, max_partition_fetch_bytes)
-    props.put(kafka::PARTITION_ASSIGNMENT_STRATEGY_CONFIG, partition_assignment_strategy)
-    props.put(kafka::RECEIVE_BUFFER_CONFIG, receive_buffer_bytes)
-    props.put(kafka::RECONNECT_BACKOFF_MS_CONFIG, reconnect_backoff_ms)
-    props.put(kafka::REQUEST_TIMEOUT_MS_CONFIG, request_timeout_ms)  
-    props.put(kafka::RETRY_BACKOFF_MS_CONFIG, retry_backoff_ms)
-    props.put(kafka::SESSION_TIMEOUT_MS_CONFIG, session_timeout_ms)
-    props.put(kafka::VALUE_DESERIALIZER_CLASS_CONFIG, value_deserializer_class)
-    
-    org.apache.kafka.clients.consumer.KafkaConsumer.new(props)
+      props.put(kafka::AUTO_COMMIT_INTERVAL_MS_CONFIG, auto_commit_interval_ms)
+      props.put(kafka::AUTO_OFFSET_RESET_CONFIG, auto_offset_reset) unless auto_offset_reset.nil?
+      props.put(kafka::BOOTSTRAP_SERVERS_CONFIG, bootstrap_servers)
+      props.put(kafka::CHECK_CRCS_CONFIG, check_crcs) unless check_crcs.nil?
+      props.put(kafka::CLIENT_ID_CONFIG, client_id)
+      props.put(kafka::CONNECTIONS_MAX_IDLE_MS_CONFIG, connections_max_idle_ms) unless connections_max_idle_ms.nil?
+      props.put(kafka::ENABLE_AUTO_COMMIT_CONFIG, enable_auto_commit)
+      props.put(kafka::FETCH_MAX_WAIT_MS_CONFIG, fetch_max_wait_ms) unless fetch_max_wait_ms.nil?
+      props.put(kafka::FETCH_MIN_BYTES_CONFIG, fetch_min_bytes) unless fetch_min_bytes.nil?
+      props.put(kafka::GROUP_ID_CONFIG, group_id)
+      props.put(kafka::HEARTBEAT_INTERVAL_MS_CONFIG, heartbeat_interval_ms) unless heartbeat_interval_ms.nil?
+      props.put(kafka::KEY_DESERIALIZER_CLASS_CONFIG, key_deserializer_class)
+      props.put(kafka::MAX_PARTITION_FETCH_BYTES_CONFIG, max_partition_fetch_bytes) unless max_partition_fetch_bytes.nil?
+      props.put(kafka::PARTITION_ASSIGNMENT_STRATEGY_CONFIG, partition_assignment_strategy) unless partition_assignment_strategy.nil?
+      props.put(kafka::RECEIVE_BUFFER_CONFIG, receive_buffer_bytes) unless receive_buffer_bytes.nil?
+      props.put(kafka::RECONNECT_BACKOFF_MS_CONFIG, reconnect_backoff_ms) unless reconnect_backoff_ms.nil?
+      props.put(kafka::REQUEST_TIMEOUT_MS_CONFIG, request_timeout_ms) unless request_timeout_ms.nil?
+      props.put(kafka::RETRY_BACKOFF_MS_CONFIG, retry_backoff_ms) unless retry_backoff_ms.nil?
+      props.put(kafka::SESSION_TIMEOUT_MS_CONFIG, session_timeout_ms) unless session_timeout_ms.nil?
+      props.put(kafka::VALUE_DESERIALIZER_CLASS_CONFIG, value_deserializer_class)
+      
+      org.apache.kafka.clients.consumer.KafkaConsumer.new(props)
+    rescue => e
+      logger.error("Unable to create Kafka consumer from given configuration", :kafka_error_message => e)
+      throw e
+    end
   end
 end #class LogStash::Inputs::Kafka
