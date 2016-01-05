@@ -198,8 +198,8 @@ class LogStash::Inputs::Kafka < LogStash::Inputs::Base
         props.put("ssl.truststore.password", ssl_truststore_password.value) unless ssl_truststore_password.nil?
 
         #Client auth stuff
-        props.put("ssl.truststore.location", ssl_keystore_location) unless ssl_keystore_location.nil?
-        props.put("ssl.truststore.password", ssl_keystore_password.value) unless ssl_keystore_password.nil?
+        props.put("ssl.keystore.location", ssl_keystore_location) unless ssl_keystore_location.nil?
+        props.put("ssl.keystore.password", ssl_keystore_password.value) unless ssl_keystore_password.nil?
       end
 
       org.apache.kafka.clients.consumer.KafkaConsumer.new(props)
