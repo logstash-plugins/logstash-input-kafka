@@ -92,6 +92,8 @@ class LogStash::Inputs::Kafka < LogStash::Inputs::Base
   # The serializer class for keys (defaults to the same default as for messages)
   config :key_decoder_class, :validate => :string, :default => 'kafka.serializer.DefaultDecoder'
 
+  class KafkaShutdownEvent; end
+  KAFKA_SHUTDOWN_EVENT = KafkaShutdownEvent.new
 
   public
   def register
@@ -137,6 +139,9 @@ class LogStash::Inputs::Kafka < LogStash::Inputs::Base
 
       while !stop?
         event = @kafka_client_queue.pop
+        if event == KAFKA_SHUTDOWN_EVENT
+          break
+        end
         queue_event(event, logstash_queue)
       end
 
@@ -155,6 +160,7 @@ class LogStash::Inputs::Kafka < LogStash::Inputs::Base
 
   public
   def stop
+    @kafka_client_queue.push(KAFKA_SHUTDOWN_EVENT)
     @consumer_group.shutdown if @consumer_group.running?
   end
 

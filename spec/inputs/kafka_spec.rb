@@ -42,7 +42,7 @@ class TestInfiniteKafkaGroup < Kafka::Group
     Thread.new do
       while true
         a_queue << blah
-        sleep 0.2
+        sleep 10
       end
     end
   end
