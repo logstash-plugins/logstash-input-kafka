@@ -1,3 +1,6 @@
+## 2.0.4
+ - Fix safe shutdown while plugin waits on Kafka for new events
+
 ## 2.0.3
  - Fix infinite loop when no new messages are found in Kafka
 
