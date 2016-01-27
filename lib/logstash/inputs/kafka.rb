@@ -50,6 +50,8 @@ class LogStash::Inputs::Kafka < LogStash::Inputs::Base
   # have an established offset or offset is invalid, start with the earliest message present in the
   # log (`smallest`) or after the last message in the log (`largest`).
   config :auto_offset_reset, :validate => %w( largest smallest ), :default => 'largest'
+  # The frequency in ms that the consumer offsets are committed to zookeeper.
+  config :auto_commit_interval_ms, :validate => :number, :default => 60 * 1000
   # Number of threads to read from the partitions. Ideally you should have as many threads as the
   # number of partitions for a perfect balance. More threads than partitions means that some
   # threads will be idle. Less threads means a single thread could be consuming from more than
@@ -103,6 +105,7 @@ class LogStash::Inputs::Kafka < LogStash::Inputs::Base
         :group_id => @group_id,
         :topic_id => @topic_id,
         :auto_offset_reset => @auto_offset_reset,
+        :auto_commit_interval_ms => @auto_commit_interval_ms,
         :rebalance_max_retries => @rebalance_max_retries,
         :rebalance_backoff_ms => @rebalance_backoff_ms,
         :consumer_timeout_ms => @consumer_timeout_ms,

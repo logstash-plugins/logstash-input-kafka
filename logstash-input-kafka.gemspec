@@ -25,7 +25,7 @@ Gem::Specification.new do |s|
   s.add_runtime_dependency 'logstash-codec-plain'
   s.add_runtime_dependency 'stud', '>= 0.0.22', '< 0.1.0'
 
-  s.add_runtime_dependency 'jruby-kafka', ['>= 1.2.0', '< 2.0.0']
+  s.add_runtime_dependency 'jruby-kafka', '1.5.0'
 
   s.add_development_dependency 'logstash-devutils'
 end

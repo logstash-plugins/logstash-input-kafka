@@ -1,5 +1,6 @@
 ## 2.0.4
  - Fix safe shutdown while plugin waits on Kafka for new events
+ - Expose auto_commit_interval_ms to control offset commit frequency
 
 ## 2.0.3
  - Fix infinite loop when no new messages are found in Kafka
