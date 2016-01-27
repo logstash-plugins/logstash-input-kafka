@@ -1,8 +1,5 @@
 require "logstash/devutils/rake"
-
-task :default do
-  system('rake -T')
-end
+require "jars/installer"
 
 desc "Get jars"
 task :vendor do
@@ -38,20 +35,4 @@ task :vendor do
   `curl #{slf4j_url} -o slf4j-api-#{slf4j_version}.jar`
   puts "Will download #{slf4j_nop_url}"
   `curl #{slf4j_nop_url} -o slf4j-noop-#{slf4j_version}.jar`
-
-  Dir.chdir home_dir
-
-  Dir.chdir test_jar_target
-  puts "Will download #{kafka_url}"
-  `curl #{kafka_url} -o kafka-#{kafka_version}.jar`
-  puts "Will download #{scala_url}"
-  `curl #{scala_url} -o scala-#{scala_version}.jar`
-  puts "Will download #{zk_url}"
-  `curl #{zk_url} -o zk.jar`
-  puts "Will download #{scala_parsers_url}"
-  `curl #{scala_parsers_url} -o scala-parsers.jar`
-  puts "Will download #{log4j_url}"
-  `curl #{log4j_url} -o log4j-#{log4j_version}.jar`
-  puts "Will download #{zookeeper_url}"
-  `curl #{zookeeper_url} -o zookeeper-#{zookeeper_version}.jar`
 end

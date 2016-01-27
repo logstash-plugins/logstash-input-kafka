@@ -3,28 +3,41 @@ require "logstash/devutils/rspec/spec_helper"
 require "logstash/inputs/kafka"
 require_relative "../logstash-input-kafka_test_jars.rb"
 
-java_import "kafka.admin.AdminUtils"                                                                                    
-java_import "kafka.utils.ZKStringSerializer"                                                                            
-#java_import "org.I0Itec.zkclient.ZkClient"                                                                              
 java_import "java.util.Properties"                                                                                      
-java_import "kafka.utils.ZkUtils"
-java_import "org.apache.kafka.clients.producer.KafkaProducer"
-java_import "org.apache.kafka.clients.producer.ProducerRecord"
+java_import "kafka.server.KafkaConfig"
+java_import "kafka.server.KafkaServerStartable"
+java_import "org.apache.zookeeper.server.ServerConfig"
+java_import "org.apache.zookeeper.server.ZooKeeperServerMain"
+java_import "org.apache.zookeeper.server.quorum.QuorumPeerConfig"
+
 
 describe "input/kafka", :integration => true do
   before do
-    props = Properties.new
-    props.put("bootstrap.servers", bootstrap_servers)
-    props.put("acks", "all")
-    props.put("retries", "0")
-    props.put("batch.size", "16384")
-    props.put("linger.ms", "1")
-    props.put("buffer.memory", "33554432")
-    props.put("key.serializer", "org.apache.kafka.common.serialization.StringSerializer")
-    props.put("value.serializer", "org.apache.kafka.common.serialization.StringSerializer")
-    producer = KafkaProducer.new(props)
-    1000.times do |i|
-      producer.send(ProducerRecord("test", i.to_s, i.to_s))
+    zk_props = Properties.new
+    zk_props.set_property("dataDir", "/tmp/zk")
+    zk_props.set_property("clientPort", "2181")
+    zk = ZooKeeperServerMain.new
+    quorum_configuration = QuorumPeerConfig.new
+    quorum_configuration.parse_properties(zk_props)
+    config = ServerConfig.new
+    config.read_from(quorum_configuration)
+
+    Thread.new do
+      zk.run_from_config(config)
     end
+    sleep 1
+
+    kafka_props = Properties.new
+    kafka_props.set_property("zookeeper.connect", "localhost:2181")
+    kafka_props.set_property("broker.id", "0")
+    kafka_config = KafkaConfig.new(kafka_props)
+    server = KafkaServerStartable.new(kafka_config)
+    server.startup
+    sleep 5
+    server.shutdown
+    server.await_shutdown
+  end
+
+  it "works" do
   end
 end
