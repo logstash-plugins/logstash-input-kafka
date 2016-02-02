@@ -28,7 +28,7 @@ require 'logstash-input-kafka_jars.rb'
 class LogStash::Inputs::Kafka < LogStash::Inputs::Base
   config_name 'kafka'
 
-  default :codec, 'plain'
+  default :codec, 'json'
 
   # The frequency in milliseconds that the consumer offsets are committed to Kafka.
   config :auto_commit_interval_ms, :validate => :string, :default => "10"
@@ -109,7 +109,7 @@ class LogStash::Inputs::Kafka < LogStash::Inputs::Base
   config :value_deserializer_class, :validate => :string, :default => "org.apache.kafka.common.serialization.StringDeserializer"
   # Ideally you should have as many threads as the number of partitions for a perfect 
   # balance — more threads than partitions means that some threads will be idle
-  config :num_threads, :validate => :number, :default => 1
+  config :consumer_threads, :validate => :number, :default => 1
   # A list of topics to subscribe to.
   config :topics, :validate => :array, :required => true
   # Time kafka consumer will wait to receive new messages from topics
@@ -134,7 +134,7 @@ class LogStash::Inputs::Kafka < LogStash::Inputs::Base
 
   public
   def run(logstash_queue)
-    @runner_consumers = num_threads.times.map { || create_consumer }
+    @runner_consumers = consumer_threads.times.map { || create_consumer }
     @runner_threads = @runner_consumers.map { |consumer| thread_runner(logstash_queue, consumer) }
     @runner_threads.each { |t| t.join }
   end # def run
