@@ -6,10 +6,11 @@ require 'logstash-input-kafka_jars.rb'
 
 # This input will read events from a Kafka topic. It uses the the newly designed
 # 0.9 version of consumer API[https://cwiki.apache.org/confluence/display/KAFKA/Kafka+0.9+Consumer+Rewrite+Design] 
-# provided by Kafka to read messages from the broker. This consumer is backward compatible and can
-# be used with 0.8.x brokers. 
+# provided by Kafka to read messages from the broker.
 #
-# The Logstash consumer handles group management and uses the default Kafka offset management
+# NOTE: This consumer is not backward compatible with 0.8.x brokers and needs a 0.9 broker.
+#
+# The Logstash Kafka consumer handles group management and uses the default offset management
 # strategy using Kafka topics.
 #
 # Logstash instances by default form a single logical group to subscribe to Kafka topics
@@ -24,6 +25,9 @@ require 'logstash-input-kafka_jars.rb'
 # For more information see http://kafka.apache.org/documentation.html#theconsumer
 #
 # Kafka consumer configuration: http://kafka.apache.org/documentation.html#consumerconfigs
+#
+# This version also adds support for SSL/TLS security connection to Kafka. By default SSL is 
+# disabled but can be turned on as needed.
 #
 class LogStash::Inputs::Kafka < LogStash::Inputs::Base
   config_name 'kafka'
