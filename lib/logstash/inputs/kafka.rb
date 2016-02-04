@@ -204,7 +204,7 @@ class LogStash::Inputs::Kafka < LogStash::Inputs::Base
 
       org.apache.kafka.clients.consumer.KafkaConsumer.new(props)
     rescue => e
-      # logger.error("Unable to create Kafka consumer from given configuration", :kafka_error_message => e)
+      logger.error("Unable to create Kafka consumer from given configuration", :kafka_error_message => e)
       throw e
     end
   end
