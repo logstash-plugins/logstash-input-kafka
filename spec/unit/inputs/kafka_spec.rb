@@ -12,6 +12,7 @@ class MockConsumer
   end
   
   def poll(ms)
+    sleep 0.3 # here to mimic polling and to give time for `stop?` to be true
     if @wake.value
       raise org.apache.kafka.common.errors.WakeupException.new
     else
@@ -30,7 +31,7 @@ class MockConsumer
 end
 
 describe LogStash::Inputs::Kafka do
-  let(:config) { { 'topics' => ['test'], 'num_threads' => 4 } }
+  let(:config) { { 'topics' => ['test'], 'num_threads' => 1 } }
   subject { LogStash::Inputs::Kafka.new(config) }
 
   it "should register" do
@@ -38,19 +39,18 @@ describe LogStash::Inputs::Kafka do
   end
 
   it "should run" do
-    expect(subject).to receive(:new_consumer) do
+    expect(subject).to receive(:create_consumer) do
       MockConsumer.new
-    end.exactly(4).times
+    end.exactly(1).times
 
     subject.register
     q = Queue.new
     Thread.new do
-      while q.size < 13
-      end
+      while q.size < 10; end
       subject.do_stop
     end
     subject.run(q)
 
-    expect(q.size).to eq(40)
+    expect(q.size).to eq(10)
   end
 end

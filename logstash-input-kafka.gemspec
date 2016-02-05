@@ -25,5 +25,12 @@ Gem::Specification.new do |s|
   s.add_runtime_dependency 'logstash-codec-plain'
   s.add_runtime_dependency 'stud', '>= 0.0.22', '< 0.1.0'
   s.add_development_dependency 'logstash-devutils'
+
+  s.platform = 'java'
+  #s.requirements << "jar 'org.apache.kafka:kafka-clients', '0.9.0.0', :scope => :runtime"
+  s.requirements << "jar 'org.apache.kafka:kafka_2.11', '0.9.0.0', :scope => :test"
+  #s.requirements << "jar 'org.slf4j:slf4j-log4j12', '1.7.13', :scope => :test"
+
+  s.add_development_dependency 'jar-dependencies', "~> 0.3.2"
 end
 
