@@ -79,6 +79,7 @@ class LogStash::Inputs::Kafka < LogStash::Inputs::Base
   #   `topic`: The topic this message is associated with
   #   `consumer_group`: The consumer group used to read in this event
   #   `partition`: The partition this message is associated with
+  #   `offset`: The offset from the partition this message is associated with
   #   `key`: A ByteBuffer containing the message key
   config :decorate_events, :validate => :boolean, :default => false
   # A unique id for the consumer; generated automatically if not set.
@@ -182,6 +183,7 @@ class LogStash::Inputs::Kafka < LogStash::Inputs::Base
                             'topic' => message_and_metadata.topic,
                             'consumer_group' => @group_id,
                             'partition' => message_and_metadata.partition,
+                            'offset' => message_and_metadata.offset,
                             'key' => message_and_metadata.key}
         end
         output_queue << event
