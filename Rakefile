@@ -7,7 +7,7 @@ end
 desc "Get jars"
 task :vendor do
   jar_target = "vendor/jar-dependencies/runtime-jars"
-  kafka_version = "0.9.0.0"
+  kafka_version = "0.9.0.1"
   kafka_url = "http://central.maven.org/maven2/org/apache/kafka/kafka-clients/#{kafka_version}/kafka-clients-#{kafka_version}.jar"
   slf4j_version = "1.7.13"
   slf4j_url = "http://central.maven.org/maven2/org/slf4j/slf4j-api/#{slf4j_version}/slf4j-api-#{slf4j_version}.jar"

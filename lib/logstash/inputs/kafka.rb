@@ -32,7 +32,7 @@ require 'logstash-input-kafka_jars.rb'
 class LogStash::Inputs::Kafka < LogStash::Inputs::Base
   config_name 'kafka'
 
-  default :codec, 'json'
+  default :codec, 'plain'
 
   # The frequency in milliseconds that the consumer offsets are committed to Kafka.
   config :auto_commit_interval_ms, :validate => :string, :default => "10"
@@ -59,6 +59,9 @@ class LogStash::Inputs::Kafka < LogStash::Inputs::Base
   config :client_id, :validate => :string, :default => "logstash"
   # Close idle connections after the number of milliseconds specified by this config.
   config :connections_max_idle_ms, :validate => :string
+  # Ideally you should have as many threads as the number of partitions for a perfect 
+  # balance — more threads than partitions means that some threads will be idle
+  config :consumer_threads, :validate => :number, :default => 1
   # If true, periodically commit to Kafka the offsets of messages already returned by the consumer. 
   # This committed offset will be used when the process fails as the position from 
   # which the consumption will begin.
@@ -111,9 +114,6 @@ class LogStash::Inputs::Kafka < LogStash::Inputs::Base
   config :session_timeout_ms, :validate => :string, :default => "30000"
   # Java Class used to deserialize the record's value
   config :value_deserializer_class, :validate => :string, :default => "org.apache.kafka.common.serialization.StringDeserializer"
-  # Ideally you should have as many threads as the number of partitions for a perfect 
-  # balance — more threads than partitions means that some threads will be idle
-  config :consumer_threads, :validate => :number, :default => 1
   # A list of topics to subscribe to.
   config :topics, :validate => :array, :required => true
   # Time kafka consumer will wait to receive new messages from topics

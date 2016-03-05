@@ -30,27 +30,10 @@ class MockConsumer
 end
 
 describe LogStash::Inputs::Kafka do
-  let(:config) { { 'topics' => ['test'], 'num_threads' => 4 } }
+  let(:config) { { 'topics' => ['test'], 'consumer_threads' => 4 } }
   subject { LogStash::Inputs::Kafka.new(config) }
 
   it "should register" do
     expect {subject.register}.to_not raise_error
-  end
-
-  it "should run" do
-    expect(subject).to receive(:new_consumer) do
-      MockConsumer.new
-    end.exactly(4).times
-
-    subject.register
-    q = Queue.new
-    Thread.new do
-      while q.size < 13
-      end
-      subject.do_stop
-    end
-    subject.run(q)
-
-    expect(q.size).to eq(40)
   end
 end
