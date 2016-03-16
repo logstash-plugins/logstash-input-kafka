@@ -1,5 +1,7 @@
 # 2.0.5
   - New dependency requirements for logstash-core for the 5.0 release
+  - Update to jruby-kafka 1.6 which includes Kafka 0.8.2.2 enabling LZ4 decompression.
+
 ## 2.0.4
  - Fix safe shutdown while plugin waits on Kafka for new events
  - Expose auto_commit_interval_ms to control offset commit frequency
