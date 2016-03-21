@@ -1,5 +1,10 @@
-# 2.0.5
+# 2.1.0
+  - Fix auto_commit_interval
+  - use jruby-kafka 2.2.2
+  
+## 2.0.5
   - New dependency requirements for logstash-core for the 5.0 release
+  
 ## 2.0.4
  - Fix safe shutdown while plugin waits on Kafka for new events
  - Expose auto_commit_interval_ms to control offset commit frequency
@@ -11,4 +16,3 @@
  - Plugins were updated to follow the new shutdown semantic, this mainly allows Logstash to instruct input plugins to terminate gracefully, 
    instead of using Thread.raise on the plugins' threads. Ref: https://github.com/elastic/logstash/pull/3895
  - Dependency on logstash-core update to 2.0
-

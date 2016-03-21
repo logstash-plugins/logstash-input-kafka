@@ -101,23 +101,23 @@ class LogStash::Inputs::Kafka < LogStash::Inputs::Base
   public
   def register
     LogStash::Logger.setup_log4j(@logger)
+    @stream_threads = []
     options = {
-        :zk_connect => @zk_connect,
+        :zookeeper_connect => @zk_connect,
         :group_id => @group_id,
-        :topic_id => @topic_id,
+        :topic => @topic_id,
         :auto_offset_reset => @auto_offset_reset,
-        :auto_commit_interval => @auto_commit_interval_ms,
+        :auto_commit_interval_ms => @auto_commit_interval_ms,
         :rebalance_max_retries => @rebalance_max_retries,
         :rebalance_backoff_ms => @rebalance_backoff_ms,
         :consumer_timeout_ms => @consumer_timeout_ms,
-        :consumer_restart_on_error => @consumer_restart_on_error,
-        :consumer_restart_sleep_ms => @consumer_restart_sleep_ms,
         :consumer_id => @consumer_id,
         :fetch_message_max_bytes => @fetch_message_max_bytes,
-        :allow_topics => @white_list,
-        :filter_topics => @black_list,
-        :value_decoder_class => @decoder_class,
-        :key_decoder_class => @key_decoder_class
+        :include_topics => @white_list,
+        :exclude_topics => @black_list,
+        :msg_decoder => @decoder_class,
+        :key_decoder => @key_decoder_class,
+        :num_streams => @consumer_threads
     }
     if @reset_beginning
       options[:reset_beginning] = 'from-beginning'
@@ -128,69 +128,79 @@ class LogStash::Inputs::Kafka < LogStash::Inputs::Base
     elsif topic_or_filter.count > 1
       raise LogStash::ConfigurationError, 'Invalid combination of topic_id, white_list or black_list. Use only one.'
     end
-    @kafka_client_queue = SizedQueue.new(@queue_size)
-    @consumer_group = create_consumer_group(options)
-    @logger.info('Registering kafka', :group_id => @group_id, :topic_id => @topic_id, :zk_connect => @zk_connect)
+    @consumer = create_consumer(options)
   end # def register
 
   public
   def run(logstash_queue)
     # noinspection JRubyStringImportInspection
     java_import 'kafka.common.ConsumerRebalanceFailedException'
-    @logger.info('Running kafka', :group_id => @group_id, :topic_id => @topic_id, :zk_connect => @zk_connect)
+    java_import 'kafka.consumer.ConsumerTimeoutException'
     begin
-      @consumer_group.run(@consumer_threads,@kafka_client_queue)
-
-      while !stop?
-        event = @kafka_client_queue.pop
-        if event == KAFKA_SHUTDOWN_EVENT
-          break
-        end
-        queue_event(event, logstash_queue)
-      end
-
-      until @kafka_client_queue.empty?
-        queue_event(@kafka_client_queue.pop,logstash_queue)
-      end
-
-      @logger.info('Done running kafka input')
+      @logger.info('Running kafka', :group_id => @group_id, :topic => @topic_id, :zookeeper_connect => @zk_connect)
+      streams = @consumer.message_streams
+      @stream_threads = streams.map {
+          |stream| Thread.new {
+          consume_stream stream, logstash_queue
+        }
+      }
+      @stream_threads.each { |t| t.join }
     rescue => e
-      @logger.warn('kafka client threw exception, restarting',
-                   :exception => e)
-      Stud.stoppable_sleep(Float(@consumer_restart_sleep_ms) * 1 / 1000) { stop? }
-      retry if !stop?
-    end
+      if !stop? and @consumer_restart_on_error
+        @consumer.shutdown
+        @logger.warn('kafka client threw exception, restarting',
+                     :exception => e)
+        Stud.stoppable_sleep(Float(@consumer_restart_sleep_ms) * 1 / 1000) { stop? }
+        @logger.debug('joining Kafka streams to rescue ')
+        @stream_threads.each { |t| t.join }
+        retry
+      else
+        @logger.error('kafka client threw exception: ',
+                     :exception => e)
+        raise e
+      end # if
+    end # begin
   end # def run
 
   public
   def stop
-    @kafka_client_queue.push(KAFKA_SHUTDOWN_EVENT)
-    @consumer_group.shutdown if @consumer_group.running?
+    @consumer.shutdown
+    @stream_threads.each { |t| t.join }
   end
 
   private
-  def create_consumer_group(options)
-    Kafka::Group.new(options)
+  def create_consumer(options)
+    @consumer = Kafka::Consumer.new(options)
   end
 
   private
-  def queue_event(message_and_metadata, output_queue)
+  def consume_stream(stream, logstash_queue)
+    it = stream.iterator
     begin
-      @codec.decode("#{message_and_metadata.message}") do |event|
-        decorate(event)
-        if @decorate_events
-          event['kafka'] = {'msg_size' => message_and_metadata.message.size,
-                            'topic' => message_and_metadata.topic,
-                            'consumer_group' => @group_id,
-                            'partition' => message_and_metadata.partition,
-                            'offset' => message_and_metadata.offset,
-                            'key' => message_and_metadata.key}
-        end
-        output_queue << event
-      end # @codec.decode
-    rescue => e # parse or event creation error
-      @logger.error('Failed to create event', :message => "#{message_and_metadata.message}", :exception => e,
-                    :backtrace => e.backtrace)
+      while it.hasNext
+        message_and_metadata = it.next
+        begin
+          @codec.decode("#{message_and_metadata.message}") do |event|
+            decorate(event)
+            if @decorate_events
+              event['kafka'] = {'msg_size' => message_and_metadata.message.size,
+                                'topic' => message_and_metadata.topic,
+                                'consumer_group' => @group_id,
+                                'partition' => message_and_metadata.partition,
+                                'offset' => message_and_metadata.offset,
+                                'key' => message_and_metadata.key}
+            end
+            logstash_queue << event
+          end # @codec.decode
+        rescue => e # parse or event creation error
+          @logger.error('Failed to create event', :message => "#{message_and_metadata.message}", :exception => e,
+                        :backtrace => e.backtrace)
+        end # begin
+      end # while
+    rescue Exception => e
+      @logger.error("#{self.class.name} caught exception: #{e.class.name}")
+      @logger.error(e.message) if e.message != ''
+      raise e
     end # begin
-  end # def queue_event
+  end # def consume_stream
 end #class LogStash::Inputs::Kafka
