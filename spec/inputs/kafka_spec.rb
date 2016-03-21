@@ -12,19 +12,20 @@ class LogStash::Inputs::TestKafka < LogStash::Inputs::Kafka
 end
 
 class TestMessageAndMetadata
-  attr_reader :topic, :partition, :key, :message
-  def initialize(topic, partition, key, message)
+  attr_reader :topic, :partition, :key, :message, :offset
+  def initialize(topic, partition, key, message, offset)
     @topic = topic
     @partition = partition
     @key = key
     @message = message
+    @offset = offset
   end
 end
 
 
 class TestKafkaGroup < Kafka::Group
   def run(a_num_threads, a_queue)
-    blah = TestMessageAndMetadata.new(@topic, 0, nil, 'Kafka message')
+    blah = TestMessageAndMetadata.new(@topic, 0, nil, 'Kafka message', 1)
     a_queue << blah
   end
 end
@@ -38,7 +39,7 @@ end
 
 class TestInfiniteKafkaGroup < Kafka::Group
   def run(a_num_threads, a_queue)
-    blah = TestMessageAndMetadata.new(@topic, 0, nil, 'Kafka message')
+    blah = TestMessageAndMetadata.new(@topic, 0, nil, 'Kafka message', 1)
     Thread.new do
       while true
         a_queue << blah
@@ -127,5 +128,6 @@ describe LogStash::Inputs::Kafka do
     insist { e['kafka']['msg_size'] } == 13
     insist { e['kafka']['partition'] } == 0
     insist { e['kafka']['key'] } == nil
+    insist { e['kafka']['offset'] } == 1
   end
 end
