@@ -157,6 +157,7 @@ class LogStash::Inputs::Kafka < LogStash::Inputs::Base
           records = consumer.poll(poll_timeout_ms);
           for record in records do
             @codec.decode(record.value.to_s) do |event|
+              decorate(event)
               logstash_queue << event
             end
           end
