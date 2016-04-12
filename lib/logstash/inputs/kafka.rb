@@ -133,9 +133,6 @@ class LogStash::Inputs::Kafka < LogStash::Inputs::Base
 
   public
   def run(logstash_queue)
-    # noinspection JRubyStringImportInspection
-    java_import 'kafka.common.ConsumerRebalanceFailedException'
-    java_import 'kafka.consumer.ConsumerTimeoutException'
     begin
       @logger.info('Running kafka', :group_id => @group_id, :topic => @topic_id, :zookeeper_connect => @zk_connect)
       streams = @consumer.message_streams
@@ -145,20 +142,16 @@ class LogStash::Inputs::Kafka < LogStash::Inputs::Base
         }
       }
       @stream_threads.each { |t| t.join }
+      @consumer.shutdown
     rescue => e
+      @consumer.shutdown
+      @stream_threads.each { |t| t.join }
       if !stop? and @consumer_restart_on_error
-        @consumer.shutdown
-        @logger.warn('kafka client threw exception, restarting',
-                     :exception => e)
         Stud.stoppable_sleep(Float(@consumer_restart_sleep_ms) * 1 / 1000) { stop? }
-        @logger.debug('joining Kafka streams to rescue ')
-        @stream_threads.each { |t| t.join }
         retry
       else
-        @logger.error('kafka client threw exception: ',
-                     :exception => e)
         raise e
-      end # if
+      end # if !stop? and @consumer_restart_on_error
     end # begin
   end # def run
 
@@ -202,7 +195,11 @@ class LogStash::Inputs::Kafka < LogStash::Inputs::Base
     rescue Exception => e
       @logger.error("#{self.class.name} caught exception: #{e.class.name}")
       @logger.error(e.message) if e.message != ''
-      raise e
+      if @consumer_restart_on_error
+        @consumer.shutdown
+      else
+        raise e
+      end # if @consumer_restart_on_error
     end # begin
   end # def consume_stream
 end #class LogStash::Inputs::Kafka
