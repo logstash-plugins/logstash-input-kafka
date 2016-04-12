@@ -4,6 +4,7 @@ require "logstash/inputs/kafka"
 require 'jruby-kafka'
 
 class LogStash::Inputs::TestKafka < LogStash::Inputs::Kafka
+  attr_reader :logger
   private
   def queue_event(msg, output_queue)
     super(msg, output_queue)
@@ -22,11 +23,71 @@ class TestMessageAndMetadata
   end
 end
 
+class TestMessageStreamIterator < Queue
+  def initialize(stopper)
+    super()
+    @shutdown_called = stopper
+  end
 
-class TestKafkaGroup < Kafka::Group
-  def run(a_num_threads, a_queue)
+  def hasNext
+    !self.empty?
+  end
+
+  def next
+    self.pop
+  end
+end
+
+class TestInfiniteStreamIterator < TestMessageStreamIterator
+  def initialize(stopper)
+    super(stopper)
+  end
+
+  def hasNext
+    unless @shutdown_called.value
+      blah = TestMessageAndMetadata.new(@topic, 0, nil, 'Kafka message', 1)
+      self << blah
+    end
+    super
+  end
+end
+
+class TestExceptionStreamIterator < TestMessageStreamIterator
+  def initialize(stopper)
+    super(stopper)
+  end
+
+  def hasNext
+    raise 'Exception from TestExceptionStreamIterator'
+  end
+end
+
+class TestMessageStream
+  attr_reader :iterator
+  def initialize(iterator)
+    @iterator = iterator
+  end
+end
+
+class TestKafkaConsumer < Kafka::Consumer
+  def initialize(options)
+    super(options)
+    @shutdown_called = Concurrent::AtomicBoolean.new(false)
+  end
+
+  def connect
+    nil
+  end
+
+  def message_streams
+    stream = TestMessageStream.new(TestMessageStreamIterator.new(@shutdown_called))
     blah = TestMessageAndMetadata.new(@topic, 0, nil, 'Kafka message', 1)
-    a_queue << blah
+    stream.iterator << blah
+    [stream]
+  end
+
+  def shutdown
+    @shutdown_called.make_true
   end
 end
 
@@ -37,24 +98,25 @@ class LogStash::Inputs::TestInfiniteKafka < LogStash::Inputs::Kafka
   end
 end
 
-class TestInfiniteKafkaGroup < Kafka::Group
-  def run(a_num_threads, a_queue)
-    blah = TestMessageAndMetadata.new(@topic, 0, nil, 'Kafka message', 1)
-    Thread.new do
-      while true
-        a_queue << blah
-        sleep 10
-      end
-    end
+class TestInfiniteKafkaConsumer < TestKafkaConsumer
+  def message_streams
+    [TestMessageStream.new(TestInfiniteStreamIterator.new(@shutdown_called))]
+  end
+end
+
+class TestExceptionKafkaConsumer < TestKafkaConsumer
+  def message_streams
+    [TestMessageStream.new(TestExceptionStreamIterator.new(@shutdown_called))]
   end
 end
 
 describe LogStash::Inputs::Kafka do
-  let (:kafka_config) {{'topic_id' => 'test'}}
+  let (:kafka_config) {{'topic_id' => 'test', 'consumer_restart_on_error' => 'false'}}
+  let (:restart_on_error_kafka_config) {{'topic_id' => 'test', 'consumer_restart_on_error' => 'true'}}
   let (:empty_config) {{}}
   let (:bad_kafka_config) {{'topic_id' => 'test', 'white_list' => 'other_topic'}}
-  let (:white_list_kafka_config) {{'white_list' => 'other_topic'}}
-  let (:decorated_kafka_config) {{'topic_id' => 'test', 'decorate_events' => true}}
+  let (:white_list_kafka_config) {{'white_list' => 'other_topic', 'consumer_restart_on_error' => 'false'}}
+  let (:decorated_kafka_config) {{'topic_id' => 'test', 'decorate_events' => true, 'consumer_restart_on_error' => 'false'}}
 
   it "should register" do
     input = LogStash::Plugin.lookup("input", "kafka").new(kafka_config)
@@ -82,8 +144,8 @@ describe LogStash::Inputs::Kafka do
 
     before :each do
       allow(LogStash::Inputs::Kafka).to receive(:new).and_return(mock_kafka_plugin)
-      expect(subject).to receive(:create_consumer_group) do |options|
-        TestInfiniteKafkaGroup.new(options)
+      expect(subject).to receive(:create_consumer) do |options|
+        TestInfiniteKafkaConsumer.new(options)
       end
     end
   end
@@ -98,8 +160,8 @@ describe LogStash::Inputs::Kafka do
 
   it 'should retrieve event from kafka' do
     kafka = LogStash::Inputs::TestKafka.new(kafka_config)
-    expect(kafka).to receive(:create_consumer_group) do |options|
-      TestKafkaGroup.new(options)
+    expect(kafka).to receive(:create_consumer) do |options|
+      TestKafkaConsumer.new(options)
     end
     kafka.register
 
@@ -113,8 +175,8 @@ describe LogStash::Inputs::Kafka do
 
   it 'should retrieve a decorated event from kafka' do
     kafka = LogStash::Inputs::TestKafka.new(decorated_kafka_config)
-    expect(kafka).to receive(:create_consumer_group) do |options|
-      TestKafkaGroup.new(options)
+    expect(kafka).to receive(:create_consumer) do |options|
+      TestKafkaConsumer.new(options)
     end
     kafka.register
 
@@ -129,5 +191,29 @@ describe LogStash::Inputs::Kafka do
     insist { e['kafka']['partition'] } == 0
     insist { e['kafka']['key'] } == nil
     insist { e['kafka']['offset'] } == 1
+  end
+
+  it 'should fail with consumer_restart_on_error false' do
+    kafka = LogStash::Inputs::TestKafka.new(kafka_config)
+    expect(kafka).to receive(:create_consumer) do |options|
+      TestExceptionKafkaConsumer.new(options)
+    end
+    kafka.register
+    logstash_queue = Queue.new
+    expect { kafka.run logstash_queue}.to raise_error(RuntimeError)
+  end
+
+  it 'should restart with consumer_restart_on_error true' do
+    kafka = LogStash::Inputs::TestKafka.new(restart_on_error_kafka_config)
+    logger = kafka.logger
+    expect(kafka).to receive(:create_consumer) do |options|
+      TestExceptionKafkaConsumer.new(options)
+    end
+    expect(logger).to receive(:error).with('LogStash::Inputs::TestKafka caught exception: RuntimeError')
+    expect(logger).to receive(:error).with('Exception from TestExceptionStreamIterator')
+    kafka.register
+    logstash_queue = Queue.new
+    kafka.run logstash_queue
+    kafka.stop
   end
 end
