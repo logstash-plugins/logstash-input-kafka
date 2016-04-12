@@ -1,6 +1,7 @@
 # 2.1.0
   - Fix auto_commit_interval
   - use jruby-kafka 2.2.2
+  - Fix issue with `message_and_metadata.key` producing a JRuby ArrayJavaProxy instead of a String or null. Ref: https://github.com/logstash-plugins/logstash-input-kafka/issues/82
   
 ## 2.0.5
   - New dependency requirements for logstash-core for the 5.0 release
