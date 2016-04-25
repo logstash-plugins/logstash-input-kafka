@@ -1,3 +1,6 @@
+# 3.0.0.beta3 and 3.0.0.beta4
+ - Internal: Update gemspec dependency
+
 # 3.0.0.beta2
  - Added SSL/TLS connection support to Kafka
  - Breaking: Changed default codec to plain instead of SSL. Json codec is really slow when used 
