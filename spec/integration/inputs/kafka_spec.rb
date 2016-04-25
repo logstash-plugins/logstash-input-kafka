@@ -9,15 +9,6 @@ describe "input/kafka", :integration => true do
   let(:tries) { 60 }
   let(:num_events) { 103 }
   
-  def wait_until_count(queue)
-    num_tries = tries
-    while (num_tries > 0)
-      break if queue.size == num_events
-      num_tries -= 1
-      sleep 1
-    end
-  end
-  
   def thread_it(kafka_input, queue)
     Thread.new do
       begin
@@ -32,7 +23,14 @@ describe "input/kafka", :integration => true do
     t = thread_it(kafka_input, queue)
     t.run
     
-    wait_until_count(queue)
+    begin
+      timeout(30) do
+        until queue.length == num_events do
+          sleep 1
+          next
+        end
+      end
+    end
     
     expect(queue.size).to eq(num_events)
   end
