@@ -1,4 +1,8 @@
 # 3.0.0.beta2
+ - internal: Use jar dependencies library instead of manually downloading jars
+ - Fixes "java.lang.ClassNotFoundException: org.xerial.snappy.SnappyOutputStream" issue (#50)
+
+# 3.0.0.beta2
  - Added SSL/TLS connection support to Kafka
  - Breaking: Changed default codec to plain instead of SSL. Json codec is really slow when used 
    with inputs because inputs by default are single threaded. This makes it a bad
