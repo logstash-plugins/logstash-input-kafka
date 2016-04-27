@@ -1,7 +1,7 @@
 Gem::Specification.new do |s|
 
   s.name            = 'logstash-input-kafka'
-  s.version         = '3.0.0.beta2'
+  s.version         = '3.0.0.beta3'
   s.licenses        = ['Apache License (2.0)']
   s.summary         = 'This input will read events from a Kafka topic. It uses the high level consumer API provided by Kafka to read messages from the broker'
   s.description     = "This gem is a logstash plugin required to be installed on top of the Logstash core pipeline using $LS_HOME/bin/plugin install gemname. This gem is not a stand-alone program"
@@ -18,6 +18,11 @@ Gem::Specification.new do |s|
 
   # Special flag to let us know this is actually a logstash plugin
   s.metadata = { 'logstash_plugin' => 'true', 'group' => 'input'}
+
+  s.requirements << "jar 'org.apache.kafka:kafka-clients', '0.9.0.1'"
+  s.requirements << "jar 'org.slf4j:slf4j-log4j12', '1.7.13'"
+
+  s.add_development_dependency 'jar-dependencies', '~> 0.3.2'
 
   # Gem dependencies
   s.add_runtime_dependency 'logstash-core', ">= 2.0.0", "< 3.0.0"
