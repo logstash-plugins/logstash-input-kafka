@@ -1,4 +1,4 @@
-# 3.0.0.beta4
+# 3.0.0.beta5 and 3.0.0.beta6
  - Internal: Use jar dependency
  - Fixed issue with snappy compression
 
