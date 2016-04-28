@@ -1,3 +1,7 @@
+# 3.0.0.beta4
+ - Internal: Use jar dependency
+ - Fixed issue with snappy compression
+
 # 3.0.0.beta3 and 3.0.0.beta4
  - Internal: Update gemspec dependency
 
