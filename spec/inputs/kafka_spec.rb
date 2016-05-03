@@ -106,9 +106,9 @@ describe LogStash::Inputs::Kafka do
     logstash_queue = Queue.new
     kafka.run logstash_queue
     e = logstash_queue.pop
-    insist { e['message'] } == 'Kafka message'
+    insist { e.get('message') } == 'Kafka message'
     # no metadata by default
-    insist { e['kafka'] } == nil
+    insist { e.get('kafka') } == nil
   end
 
   it 'should retrieve a decorated event from kafka' do
@@ -121,13 +121,13 @@ describe LogStash::Inputs::Kafka do
     logstash_queue = Queue.new
     kafka.run logstash_queue
     e = logstash_queue.pop
-    insist { e['message'] } == 'Kafka message'
+    insist { e.get('message') } == 'Kafka message'
     # no metadata by default
-    insist { e['kafka']['topic'] } == 'test'
-    insist { e['kafka']['consumer_group'] } == 'logstash'
-    insist { e['kafka']['msg_size'] } == 13
-    insist { e['kafka']['partition'] } == 0
-    insist { e['kafka']['key'] } == nil
-    insist { e['kafka']['offset'] } == 1
+    insist { e.get('[kafka][topic]') } == 'test'
+    insist { e.get('[kafka][consumer_group]') } == 'logstash'
+    insist { e.get('[kafka][msg_size]') } == 13
+    insist { e.get('[kafka][partition]') } == 0
+    insist { e.get('[kafka][key]') } == nil
+    insist { e.get('[kafka][offset]') } == 1
   end
 end
