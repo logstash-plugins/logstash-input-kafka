@@ -1,5 +1,9 @@
+# 4.0.0
+ - GA release to support Kafka 0.9 broker for LS 5.0
+ - Update to support LS 5.0
+
 # 3.0.0
- - GA release to support Kafka 0.9 broker
+ - GA release to support Kafka 0.9 broker for LS 2.x
 
 # 3.0.0.beta7
  - Fix Log4j warnings by setting up the logger
