@@ -35,7 +35,7 @@ class LogStash::Inputs::Kafka < LogStash::Inputs::Base
   default :codec, 'plain'
 
   # The frequency in milliseconds that the consumer offsets are committed to Kafka.
-  config :auto_commit_interval_ms, :validate => :string, :default => "10"
+  config :auto_commit_interval_ms, :validate => :string, :default => "5000"
   # What to do when there is no initial offset in Kafka or if an offset is out of range:
   #
   # * earliest: automatically reset the offset to the earliest offset
