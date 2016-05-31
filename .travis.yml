@@ -5,7 +5,7 @@ jdk: oraclejdk8
 rvm:
   - jruby-1.7.25
 env:
-  - KAFKA_VERSION=0.9.0.0 
+  - KAFKA_VERSION=0.10.0.0
 before_install: ./kafka_test_setup.sh
 before_script:
   - bundle exec rake vendor
