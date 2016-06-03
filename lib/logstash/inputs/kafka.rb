@@ -133,7 +133,6 @@ class LogStash::Inputs::Kafka < LogStash::Inputs::Base
   
   public
   def register
-    LogStash::Logger.setup_log4j(@logger)
     @runner_threads = []
   end # def register
 
