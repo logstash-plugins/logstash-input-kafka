@@ -2,6 +2,7 @@
   - Revert back to not configuring log4j here in this plugin. This setup method used 
   will hardcode log4j setting which means you cannot configure it. Its better to add 
   log4j.properties in LS_HOME/bin, add it to classpath to silence warnings.
+  - Update auto_commit_interval_ms to default to 5000
 
 ## 3.0.2
   - Support for Kafka 0.9 for LS 2.x
