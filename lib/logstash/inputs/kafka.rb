@@ -99,7 +99,11 @@ class LogStash::Inputs::Kafka < LogStash::Inputs::Base
   # The period of time in milliseconds after which we force a refresh of metadata even if
   # we haven't seen any partition leadership changes to proactively discover any new brokers or partitions
   config :metadata_max_age_ms, :validate => :string
+<<<<<<< 1d5ff51755dcaa4b76c0c0e8557856b50b99850e
   # The class name of the partition assignment strategy that the client will use to distribute
+=======
+  # The class name of the partition assignment strategy that the client will use to distribute 
+>>>>>>> Adding SASL/Kerberos and bumping Kafka version
   # partition ownership amongst consumer instances
   config :partition_assignment_strategy, :validate => :string
   # The size of the TCP receive buffer (SO_RCVBUF) to use when reading data.
@@ -137,7 +141,19 @@ class LogStash::Inputs::Kafka < LogStash::Inputs::Base
   config :ssl_keystore_location, :validate => :path
   # If client authentication is required, this setting stores the keystore password
   config :ssl_keystore_password, :validate => :password
-
+  # Security protocol either of PLAINTEXT,SSL,SASL_PLAINTEXT,SASL_SSL
+  config :security_protocol, :validate => :string, :default => "PLAINTEXT"
+  # SASL mechanism used for client connections. 
+  # This may be any mechanism for which a security provider is available.
+  # GSSAPI is the default mechanism.
+  config :sasl_mechanism, :validate => :string, :default => "GSSAPI"
+  # The Kerberos principal name that Kafka runs as. 
+  # This can be defined either in Kafka's JAAS config or in Kafka's config.
+  config :sasl_kerberos_service_name, :validate => :string
+  # Path to JAAS file required for SASL
+  config :jaas_path, :validate => :path
+  # Optional path to kerberos config
+  config :kerberos_config, :validate => :path
 
   public
   def register
@@ -210,7 +226,7 @@ class LogStash::Inputs::Kafka < LogStash::Inputs::Base
       props.put(kafka::SESSION_TIMEOUT_MS_CONFIG, session_timeout_ms) unless session_timeout_ms.nil?
       props.put(kafka::VALUE_DESERIALIZER_CLASS_CONFIG, value_deserializer_class)
 
-      if ssl
+      if security_protocol == "SSL"
         props.put("security.protocol", "SSL")
         props.put("ssl.truststore.location", ssl_truststore_location)
         props.put("ssl.truststore.password", ssl_truststore_password.value) unless ssl_truststore_password.nil?
@@ -218,6 +234,26 @@ class LogStash::Inputs::Kafka < LogStash::Inputs::Base
         #Client auth stuff
         props.put("ssl.keystore.location", ssl_keystore_location) unless ssl_keystore_location.nil?
         props.put("ssl.keystore.password", ssl_keystore_password.value) unless ssl_keystore_password.nil?
+
+      elsif security_protocol == "SASL_PLAINTEXT"
+	props.put("security.protocol",security_protocol)
+	props.put("sasl.mechanism",sasl_mechanism) 
+	props.put("sasl.kerberos.service.name",sasl_kerberos_service_name)
+	java.lang.System.setProperty("java.security.auth.login.config",jaas_path) unless jaas_path.nil?
+	java.lang.System.setProperty("java.security.krb5.conf",kerberos_config) unless kerberos_config.nil?
+      
+      elsif security_protocol == "SASL_SSL"
+	props.put("ssl.truststore.location", ssl_truststore_location)
+        props.put("ssl.truststore.password", ssl_truststore_password.value) unless ssl_truststore_password.nil?
+
+        props.put("ssl.keystore.location", ssl_keystore_location) unless ssl_keystore_location.nil?
+        props.put("ssl.keystore.password", ssl_keystore_password.value) unless ssl_keystore_password.nil?
+        props.put("security.protocol",security_protocol)
+	props.put("sasl.mechanism",sasl_mechanism) 
+	props.put("sasl.kerberos.service.name",sasl_kerberos_service_name)
+	java.lang.System.setProperty("java.security.auth.login.config",jaas_path) unless jaas_path.nil?
+	java.lang.System.setProperty("java.security.krb5.conf",kerberos_config) unless kerberos_config.nil?
+
       end
 
       org.apache.kafka.clients.consumer.KafkaConsumer.new(props)
