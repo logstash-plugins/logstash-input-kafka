@@ -99,11 +99,7 @@ class LogStash::Inputs::Kafka < LogStash::Inputs::Base
   # The period of time in milliseconds after which we force a refresh of metadata even if
   # we haven't seen any partition leadership changes to proactively discover any new brokers or partitions
   config :metadata_max_age_ms, :validate => :string
-<<<<<<< 1d5ff51755dcaa4b76c0c0e8557856b50b99850e
   # The class name of the partition assignment strategy that the client will use to distribute
-=======
-  # The class name of the partition assignment strategy that the client will use to distribute 
->>>>>>> Adding SASL/Kerberos and bumping Kafka version
   # partition ownership amongst consumer instances
   config :partition_assignment_strategy, :validate => :string
   # The size of the TCP receive buffer (SO_RCVBUF) to use when reading data.
@@ -199,6 +195,10 @@ class LogStash::Inputs::Kafka < LogStash::Inputs::Base
   def create_consumer
     begin
       props = java.util.Properties.new
+       
+      java.lang.System.setProperty("java.security.auth.login.config",jaas_path) unless jaas_path.nil?
+      java.lang.System.setProperty("java.security.krb5.conf",kerberos_config) unless kerberos_config.nil?
+
       kafka = org.apache.kafka.clients.consumer.ConsumerConfig
 
       props.put(kafka::AUTO_COMMIT_INTERVAL_MS_CONFIG, auto_commit_interval_ms)
@@ -239,8 +239,6 @@ class LogStash::Inputs::Kafka < LogStash::Inputs::Base
 	props.put("security.protocol",security_protocol)
 	props.put("sasl.mechanism",sasl_mechanism) 
 	props.put("sasl.kerberos.service.name",sasl_kerberos_service_name)
-	java.lang.System.setProperty("java.security.auth.login.config",jaas_path) unless jaas_path.nil?
-	java.lang.System.setProperty("java.security.krb5.conf",kerberos_config) unless kerberos_config.nil?
       
       elsif security_protocol == "SASL_SSL"
 	props.put("ssl.truststore.location", ssl_truststore_location)
@@ -251,11 +249,8 @@ class LogStash::Inputs::Kafka < LogStash::Inputs::Base
         props.put("security.protocol",security_protocol)
 	props.put("sasl.mechanism",sasl_mechanism) 
 	props.put("sasl.kerberos.service.name",sasl_kerberos_service_name)
-	java.lang.System.setProperty("java.security.auth.login.config",jaas_path) unless jaas_path.nil?
-	java.lang.System.setProperty("java.security.krb5.conf",kerberos_config) unless kerberos_config.nil?
-
       end
-
+      
       org.apache.kafka.clients.consumer.KafkaConsumer.new(props)
     rescue => e
       logger.error("Unable to create Kafka consumer from given configuration", :kafka_error_message => e)
