@@ -2,6 +2,7 @@
 # Setup Kafka and create test topics
 
 set -ex
+KAFKA_VERSION==0.9.0.1
 
 echo "Downloading Kafka version $KAFKA_VERSION"
 curl -s -o kafka.tgz "http://ftp.wayne.edu/apache/kafka/$KAFKA_VERSION/kafka_2.11-$KAFKA_VERSION.tgz"
@@ -14,12 +15,12 @@ kafka/bin/kafka-server-start.sh kafka/config/server.properties &
 sleep 3
 
 echo "Setting up test topics with test data"
-kafka/bin/kafka-topics.sh --create --partitions 3 --replication-factor 1 --topic topic3 --zookeeper localhost:2181
-kafka/bin/kafka-topics.sh --create --partitions 3 --replication-factor 1 --topic snappy_topic --zookeeper localhost:2181
-kafka/bin/kafka-topics.sh --create --partitions 3 --replication-factor 1 --topic lz4_topic --zookeeper localhost:2181
+kafka/bin/kafka-topics.sh --create --partitions 3 --replication-factor 1 --topic logstash_topic_uncompressed --zookeeper localhost:2181
+kafka/bin/kafka-topics.sh --create --partitions 3 --replication-factor 1 --topic logstash_topic_snappy --zookeeper localhost:2181
+kafka/bin/kafka-topics.sh --create --partitions 3 --replication-factor 1 --topic logstash_topic_lz4 --zookeeper localhost:2181
 wget https://s3.amazonaws.com/data.elasticsearch.org/apache_logs/apache_logs.txt
-cat apache_logs.txt | kafka/bin/kafka-console-producer.sh --topic topic3 --broker-list localhost:9092
-cat apache_logs.txt | kafka/bin/kafka-console-producer.sh --topic snappy_topic --broker-list localhost:9092 --compression-codec snappy
-cat apache_logs.txt | kafka/bin/kafka-console-producer.sh --topic lz4_topic --broker-list localhost:9092 --compression-codec lz4
+cat apache_logs.txt | kafka/bin/kafka-console-producer.sh --topic logstash_topic_uncompressed --broker-list localhost:9092
+cat apache_logs.txt | kafka/bin/kafka-console-producer.sh --topic logstash_topic_snappy --broker-list localhost:9092 --compression-codec snappy
+cat apache_logs.txt | kafka/bin/kafka-console-producer.sh --topic logstash_topic_lz4 --broker-list localhost:9092 --compression-codec lz4
 
 echo "Setup complete, running specs"
