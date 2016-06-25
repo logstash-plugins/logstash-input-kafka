@@ -13,7 +13,7 @@ describe "inputs/kafka", :integration => true do
     let(:snappy_config) { { 'topics' => ['logstash_topic_snappy'], 'codec' => 'plain', 'group_id' => group_id, 'auto_offset_reset' => 'earliest'} }
     let(:lz4_config) { { 'topics' => ['logstash_topic_lz4'], 'codec' => 'plain', 'group_id' => group_id, 'auto_offset_reset' => 'earliest'} }
     
-    let(:timeout_seconds) { 3600 }
+    let(:timeout_seconds) { 120 }
     let(:num_events) { 103 }
     
     def thread_it(kafka_input, queue)
@@ -56,7 +56,7 @@ describe "inputs/kafka", :integration => true do
   describe "#kafka-topics-pattern" do
     let(:group_id) {rand(36**8).to_s(36)}
     let(:pattern_config) { { 'topics_pattern' => 'logstash_topic_.*', 'group_id' => group_id, 'codec' => 'plain', 'auto_offset_reset' => 'earliest'} }  
-    let(:timeout_seconds) { 3600 }
+    let(:timeout_seconds) { 120 }
     let(:num_events) { 309 }
     
     def thread_it(kafka_input, queue)
@@ -81,7 +81,7 @@ describe "inputs/kafka", :integration => true do
     let(:group_id) {rand(36**8).to_s(36)}
     let(:topic) {"logstash_topic_uncompressed"}
     let(:partition3_config) { { 'topics' => [topic], 'group_id' => group_id, 'codec' => 'plain', 'auto_offset_reset' => 'earliest', 'decorate_events' => true} }    
-    let(:timeout_seconds) { 3600 }
+    let(:timeout_seconds) { 120 }
     let(:num_events) { 103 }
     
     def thread_it(kafka_input, queue)
