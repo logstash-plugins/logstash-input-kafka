@@ -2,7 +2,11 @@
 # Setup Kafka and create test topics
 
 set -ex
-KAFKA_VERSION==0.9.0.1
+if [ -n "${KAFKA_VERSION+1}" ]; then
+  echo "KAFKA_VERSION is $KAFKA_VERSION"
+else
+   KAFKA_VERSION==0.10.0.0
+fi
 
 echo "Downloading Kafka version $KAFKA_VERSION"
 curl -s -o kafka.tgz "http://ftp.wayne.edu/apache/kafka/$KAFKA_VERSION/kafka_2.11-$KAFKA_VERSION.tgz"
