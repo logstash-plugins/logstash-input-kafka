@@ -56,7 +56,7 @@ describe "inputs/kafka", :integration => true do
   describe "#kafka-topics-pattern" do
     let(:group_id) {rand(36**8).to_s(36)}
     let(:pattern_config) { { 'topics_pattern' => 'logstash_topic_.*', 'group_id' => group_id, 'codec' => 'plain', 'auto_offset_reset' => 'earliest'} }  
-    let(:timeout_seconds) { 120 }
+    let(:timeout_seconds) { 300 }
     let(:num_events) { 309 }
     
     def thread_it(kafka_input, queue)
@@ -81,7 +81,7 @@ describe "inputs/kafka", :integration => true do
     let(:group_id) {rand(36**8).to_s(36)}
     let(:topic) {"logstash_topic_uncompressed"}
     let(:partition3_config) { { 'topics' => [topic], 'group_id' => group_id, 'codec' => 'plain', 'auto_offset_reset' => 'earliest', 'decorate_events' => true} }    
-    let(:timeout_seconds) { 120 }
+    let(:timeout_seconds) { 300 }
     let(:num_events) { 103 }
     
     def thread_it(kafka_input, queue)
@@ -92,7 +92,7 @@ describe "inputs/kafka", :integration => true do
       end
     end
       
-    it "should show the right topic name in decorate" do
+    it "should show the right topic and group name in decorated kafka section" do
       kafka_input = LogStash::Inputs::Kafka.new(partition3_config)
       queue = Queue.new
       t = thread_it(kafka_input, queue)
