@@ -16,7 +16,7 @@ class MockConsumer
       raise org.apache.kafka.common.errors.WakeupException.new
     else
       10.times.map do
-        org.apache.kafka.clients.consumer.ConsumerRecord.new("test", 0, 0, "key", "value")
+        org.apache.kafka.clients.consumer.ConsumerRecord.new("logstash", 0, 0, "key", "value")
       end
     end
   end
