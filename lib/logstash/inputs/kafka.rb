@@ -150,7 +150,11 @@ class LogStash::Inputs::Kafka < LogStash::Inputs::Base
       end
 
       until @kafka_client_queue.empty?
-        queue_event(@kafka_client_queue.pop,logstash_queue)
+        event = @kafka_client_queue.pop
+        if event == KAFKA_SHUTDOWN_EVENT
+          break
+        end
+        queue_event(event, logstash_queue)
       end
 
       @logger.info('Done running kafka input')

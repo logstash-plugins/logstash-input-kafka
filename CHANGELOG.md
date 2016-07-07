@@ -1,6 +1,9 @@
+# 2.0.9
+ - Fix shutdown sequence bug where a shutdown event found itself in queue after a shutdown was initiated
+
 # 2.0.7
  - Update to jruby-kafka 1.6 which includes Kafka 0.8.2.2 enabling LZ4 decompression.
- 
+
 # 2.0.6
   - Depend on logstash-core-plugin-api instead of logstash-core, removing the need to mass update plugins on major releases of logstash
 
