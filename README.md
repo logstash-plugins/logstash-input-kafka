@@ -8,6 +8,18 @@ It is fully free and fully open source. The license is Apache 2.0, meaning you a
 
 ## Documentation
 
+### Kafka Compatibility
+
+Here's a table that describes the compatibility matrix for Kafka Broker support. Please remember that it is good advice to upgrade brokers before consumers/producers since brokers target backwards compatibility. The 0.9 broker will work with both the 0.8 consumer and 0.9 consumer APIs but not the other way around.
+
+| Kafka Broker Version | Logstash Version | Input Plugin | Output Plugin | Why? |
+|:---------------:|:------------------:|:--------------:|:---------------:|:------|
+| 0.8           | 2.0 - 2.x   | < 3.0.0 | <3.0.0 | Legacy, 0.8 is still popular |
+| 0.9           | 2.0 - 2.3.x   |   3.0.0 | 3.0.0  | Intermediate release before 0.10 that works with old Ruby Event API `[]`  |
+| 0.9          | 2.4, 5.0           |   4.0.0 | 4.0.0  | Intermediate release before 0.10 with new get/set API |
+| 0.10         | 2.4, 5.0           |   5.0.0 | 5.0.0  | Track latest Kafka release. Not compatible with 0.9 broker |
+
+
 Logstash provides infrastructure to automatically generate documentation for this plugin. We use the asciidoc format to write documentation so any comments in the source code will be first converted into asciidoc and then into html. All plugin documentation are placed under one [central location](http://www.elastic.co/guide/en/logstash/current/).
 
 - For formatting code or config example, you can use the asciidoc `[source,ruby]` directive
