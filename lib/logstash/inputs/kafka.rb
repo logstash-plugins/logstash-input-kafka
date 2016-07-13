@@ -5,10 +5,25 @@ require 'stud/interval'
 
 # This input will read events from a Kafka topic. It uses the high level consumer API provided
 # by Kafka to read messages from the broker. It also maintains the state of what has been
-# consumed using Zookeeper. The default input codec is json
+# consumed using Zookeeper. The default input codec is json.
+#
+# Here's a compatibility matrix that shows the Kafka broker and client versions that are compatible with each combination
+# of Logstash and the Kafka input plugin:
+#
+# [options="header"]
+# |==========================================================
+# |Kafka Broker Version |Kafka Client Version |Logstash Version |Plugin Version |Why?
+# |0.8       |0.8       |2.0.0 - 2.x.x   |<3.0.0 |Legacy, 0.8 is still popular
+# |0.9       |0.9       |2.0.0 - 2.3.x   | 3.x.x |Works with the old Ruby Event API (`event['product']['price'] = 10`)
+# |0.9       |0.9       |2.4.0 - 5.0.x   | 4.x.x |Works with the new getter/setter APIs (`event.set('[product][price]', 10)`)
+# |0.10      |0.10      |2.4.0 - 5.0.x   | 5.x.x |Not compatible with the 0.9 broker
+# |==========================================================
+#
+# NOTE: It's a good idea to upgrade brokers before consumers/producers because brokers target backwards compatibility.
+# For example, the 0.9 broker will work with both the 0.8 consumer and 0.9 consumer APIs, but not the other way around.
 #
 # You must configure `topic_id`, `white_list` or `black_list`. By default it will connect to a
-# Zookeeper running on localhost. All the broker information is read from Zookeeper state
+# Zookeeper running on localhost. All the broker information is read from Zookeeper state.
 #
 # Ideally you should have as many threads as the number of partitions for a perfect balance --
 # more threads than partitions means that some threads will be idle
