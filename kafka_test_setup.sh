@@ -5,7 +5,7 @@ set -ex
 
 echo "Downloading Kafka version $KAFKA_VERSION"
 curl -s -o kafka.tgz "http://ftp.wayne.edu/apache/kafka/$KAFKA_VERSION/kafka_2.11-$KAFKA_VERSION.tgz"
-mkdir kafka && tar xzf kafka.tgz -C kafka --strip-components 1
+mkdir kafka && tar -xzvf kafka.tgz -C kafka --strip-components 1
 
 echo "Starting ZooKeeper"
 kafka/bin/zookeeper-server-start.sh kafka/config/zookeeper.properties &
