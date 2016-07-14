@@ -1,3 +1,6 @@
+## 5.0.1
+  - Relax constraint on logstash-core-plugin-api to >= 1.60 <= 2.99
+
 ## 5.0.0
   - Support for Kafka 0.10 which is not backward compatible with 0.9 broker.
 
