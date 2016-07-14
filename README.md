@@ -17,8 +17,9 @@ Here's a table that describes the compatibility matrix for Kafka Broker support.
 | 0.9          | 2.4, 5.0           |   4.0.0 | 4.0.0  | Intermediate release before 0.10 with new get/set API |
 | 0.10         | 2.4, 5.0           |   5.0.0 | 5.0.0  | Track latest Kafka release. Not compatible with 0.9 broker |
 
-
 ## Documentation
+
+https://www.elastic.co/guide/en/logstash/current/plugins-inputs-kafka.html
 
 Logstash provides infrastructure to automatically generate documentation for this plugin. We use the asciidoc format to write documentation so any comments in the source code will be first converted into asciidoc and then into html. All plugin documentation are placed under one [central location](http://www.elastic.co/guide/en/logstash/current/).
 
