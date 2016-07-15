@@ -136,8 +136,11 @@ class LogStash::Inputs::Kafka < LogStash::Inputs::Base
   config :session_timeout_ms, :validate => :string
   # Java Class used to deserialize the record's value
   config :value_deserializer_class, :validate => :string, :default => "org.apache.kafka.common.serialization.StringDeserializer"
-  # A list of topics to subscribe to.
-  config :topics, :validate => :array, :required => true
+  # A list of topics to subscribe to, defaults to ["logstash"].
+  config :topics, :validate => :array, :default => ["logstash"]
+  # A topic regex pattern to subscribe to. 
+  # The topics configuration will be ignored when using this configuration.
+  config :topics_pattern, :validate => :string
   # Time kafka consumer will wait to receive new messages from topics
   config :poll_timeout_ms, :validate => :number
   # Enable SSL/TLS secured communication to Kafka broker.
@@ -150,6 +153,14 @@ class LogStash::Inputs::Kafka < LogStash::Inputs::Base
   config :ssl_keystore_location, :validate => :path
   # If client authentication is required, this setting stores the keystore password
   config :ssl_keystore_password, :validate => :password
+  # Option to add Kafka metadata like topic, message size to the event.
+  # This will add a field named `kafka` to the logstash event containing the following attributes:
+  #   `topic`: The topic this message is associated with
+  #   `consumer_group`: The consumer group used to read in this event
+  #   `partition`: The partition this message is associated with
+  #   `offset`: The offset from the partition this message is associated with
+  #   `key`: A ByteBuffer containing the message key
+  config :decorate_events, :validate => :boolean, :default => false
 
 
   public
@@ -174,12 +185,25 @@ class LogStash::Inputs::Kafka < LogStash::Inputs::Base
   def thread_runner(logstash_queue, consumer)
     Thread.new do
       begin
-        consumer.subscribe(topics);
+        unless @topics_pattern.nil?
+          nooplistener = org.apache.kafka.clients.consumer.internals.NoOpConsumerRebalanceListener.new
+          pattern = java.util.regex.Pattern.compile(@topics_pattern)
+          consumer.subscribe(pattern, nooplistener)
+        else
+          consumer.subscribe(topics);
+        end
         while !stop?
           records = consumer.poll(poll_timeout_ms);
           for record in records do
             @codec.decode(record.value.to_s) do |event|
               decorate(event)
+              if @decorate_events
+                event.set("[kafka][topic]", record.topic)
+                event.set("[kafka][consumer_group]", @group_id)
+                event.set("[kafka][partition]", record.partition)
+                event.set("[kafka][offset]", record.offset)
+                event.set("[kafka][key]", record.key)
+              end
               logstash_queue << event
             end
           end
