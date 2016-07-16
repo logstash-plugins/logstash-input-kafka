@@ -18,7 +18,7 @@ require 'logstash-input-kafka_jars.rb'
 # you could run multiple Logstash instances with the same `group_id` to spread the load across
 # physical machines. Messages in a topic will be distributed to all Logstash instances with 
 # the same `group_id`.
-# 
+#
 # Ideally you should have as many threads as the number of partitions for a perfect balance --
 # more threads than partitions means that some threads will be idle
 #
@@ -26,7 +26,7 @@ require 'logstash-input-kafka_jars.rb'
 #
 # Kafka consumer configuration: http://kafka.apache.org/documentation.html#consumerconfigs
 #
-# This version also adds support for SSL/TLS security connection to Kafka. By default SSL is 
+# This version also adds support for SSL/TLS security connection to Kafka. By default SSL is
 # disabled but can be turned on as needed.
 #
 class LogStash::Inputs::Kafka < LogStash::Inputs::Base
@@ -43,53 +43,53 @@ class LogStash::Inputs::Kafka < LogStash::Inputs::Base
   # * none: throw exception to the consumer if no previous offset is found for the consumer's group
   # * anything else: throw exception to the consumer.
   config :auto_offset_reset, :validate => :string
-  # A list of URLs to use for establishing the initial connection to the cluster. 
-  # This list should be in the form of `host1:port1,host2:port2` These urls are just used 
-  # for the initial connection to discover the full cluster membership (which may change dynamically) 
-  # so this list need not contain the full set of servers (you may want more than one, though, in 
+  # A list of URLs to use for establishing the initial connection to the cluster.
+  # This list should be in the form of `host1:port1,host2:port2` These urls are just used
+  # for the initial connection to discover the full cluster membership (which may change dynamically)
+  # so this list need not contain the full set of servers (you may want more than one, though, in
   # case a server is down).
   config :bootstrap_servers, :validate => :string, :default => "localhost:9092"
-  # Automatically check the CRC32 of the records consumed. This ensures no on-the-wire or on-disk 
-  # corruption to the messages occurred. This check adds some overhead, so it may be 
+  # Automatically check the CRC32 of the records consumed. This ensures no on-the-wire or on-disk
+  # corruption to the messages occurred. This check adds some overhead, so it may be
   # disabled in cases seeking extreme performance.
   config :check_crcs, :validate => :string
-  # The id string to pass to the server when making requests. The purpose of this 
-  # is to be able to track the source of requests beyond just ip/port by allowing 
+  # The id string to pass to the server when making requests. The purpose of this
+  # is to be able to track the source of requests beyond just ip/port by allowing
   # a logical application name to be included.
   config :client_id, :validate => :string, :default => "logstash"
   # Close idle connections after the number of milliseconds specified by this config.
   config :connections_max_idle_ms, :validate => :string
-  # Ideally you should have as many threads as the number of partitions for a perfect 
+  # Ideally you should have as many threads as the number of partitions for a perfect
   # balance — more threads than partitions means that some threads will be idle
   config :consumer_threads, :validate => :number, :default => 1
   # If true, periodically commit to Kafka the offsets of messages already returned by the consumer. 
-  # This committed offset will be used when the process fails as the position from 
+  # This committed offset will be used when the process fails as the position from
   # which the consumption will begin.
   config :enable_auto_commit, :validate => :string, :default => "true"
   # The maximum amount of time the server will block before answering the fetch request if 
   # there isn't sufficient data to immediately satisfy `fetch_min_bytes`. This 
   # should be less than or equal to the timeout used in `poll_timeout_ms`
   config :fetch_max_wait_ms, :validate => :string
-  # The minimum amount of data the server should return for a fetch request. If insufficient 
+  # The minimum amount of data the server should return for a fetch request. If insufficient
   # data is available the request will wait for that much data to accumulate
   # before answering the request.
   config :fetch_min_bytes, :validate => :string
-  # The identifier of the group this consumer belongs to. Consumer group is a single logical subscriber 
-  # that happens to be made up of multiple processors. Messages in a topic will be distributed to all 
+  # The identifier of the group this consumer belongs to. Consumer group is a single logical subscriber
+  # that happens to be made up of multiple processors. Messages in a topic will be distributed to all
   # Logstash instances with the same `group_id`
   config :group_id, :validate => :string, :default => "logstash"
   # The expected time between heartbeats to the consumer coordinator. Heartbeats are used to ensure 
   # that the consumer's session stays active and to facilitate rebalancing when new
-  # consumers join or leave the group. The value must be set lower than 
-  # `session.timeout.ms`, but typically should be set no higher than 1/3 of that value. 
+  # consumers join or leave the group. The value must be set lower than
+  # `session.timeout.ms`, but typically should be set no higher than 1/3 of that value.
   # It can be adjusted even lower to control the expected time for normal rebalances.
   config :heartbeat_interval_ms, :validate => :string
   # Java Class used to deserialize the record's key
   config :key_deserializer_class, :validate => :string, :default => "org.apache.kafka.common.serialization.StringDeserializer"
-  # The maximum amount of data per-partition the server will return. The maximum total memory used for a 
-  # request will be <code>#partitions * max.partition.fetch.bytes</code>. This size must be at least 
-  # as large as the maximum message size the server allows or else it is possible for the producer to 
-  # send messages larger than the consumer can fetch. If that happens, the consumer can get stuck trying 
+  # The maximum amount of data per-partition the server will return. The maximum total memory used for a
+  # request will be <code>#partitions * max.partition.fetch.bytes</code>. This size must be at least
+  # as large as the maximum message size the server allows or else it is possible for the producer to
+  # send messages larger than the consumer can fetch. If that happens, the consumer can get stuck trying
   # to fetch a large message on a certain partition.
   config :max_partition_fetch_bytes, :validate => :string
   # The class name of the partition assignment strategy that the client will use to distribute 
@@ -97,16 +97,16 @@ class LogStash::Inputs::Kafka < LogStash::Inputs::Base
   config :partition_assignment_strategy, :validate => :string
   # The size of the TCP receive buffer (SO_RCVBUF) to use when reading data.
   config :receive_buffer_bytes, :validate => :string
-  # The amount of time to wait before attempting to reconnect to a given host. 
-  # This avoids repeatedly connecting to a host in a tight loop. 
+  # The amount of time to wait before attempting to reconnect to a given host.
+  # This avoids repeatedly connecting to a host in a tight loop.
   # This backoff applies to all requests sent by the consumer to the broker.
   config :reconnect_backoff_ms, :validate => :string
-  # The configuration controls the maximum amount of time the client will wait 
-  # for the response of a request. If the response is not received before the timeout 
-  # elapses the client will resend the request if necessary or fail the request if 
+  # The configuration controls the maximum amount of time the client will wait
+  # for the response of a request. If the response is not received before the timeout
+  # elapses the client will resend the request if necessary or fail the request if
   # retries are exhausted.
   config :request_timeout_ms, :validate => :string
-  # The amount of time to wait before attempting to retry a failed fetch request 
+  # The amount of time to wait before attempting to retry a failed fetch request
   # to a given topic partition. This avoids repeated fetching-and-failing in a tight loop.
   config :retry_backoff_ms, :validate => :string
   # The timeout after which, if the `poll_timeout_ms` is not invoked, the consumer is marked dead 
@@ -114,8 +114,11 @@ class LogStash::Inputs::Kafka < LogStash::Inputs::Base
   config :session_timeout_ms, :validate => :string, :default => "30000"
   # Java Class used to deserialize the record's value
   config :value_deserializer_class, :validate => :string, :default => "org.apache.kafka.common.serialization.StringDeserializer"
-  # A list of topics to subscribe to.
-  config :topics, :validate => :array, :required => true
+  # A list of topics to subscribe to, defaults to ["logstash"].
+  config :topics, :validate => :array, :default => ["logstash"]
+  # A topic regex pattern to subscribe to. 
+  # The topics configuration will be ignored when using this configuration.
+  config :topics_pattern, :validate => :string
   # Time kafka consumer will wait to receive new messages from topics
   config :poll_timeout_ms, :validate => :number, :default => 100
   # Enable SSL/TLS secured communication to Kafka broker. Note that secure communication 
@@ -129,10 +132,19 @@ class LogStash::Inputs::Kafka < LogStash::Inputs::Base
   config :ssl_keystore_location, :validate => :path
   # If client authentication is required, this setting stores the keystore password
   config :ssl_keystore_password, :validate => :password
+  # Option to add Kafka metadata like topic, message size to the event.
+  # This will add a field named `kafka` to the logstash event containing the following attributes:
+  #   `topic`: The topic this message is associated with
+  #   `consumer_group`: The consumer group used to read in this event
+  #   `partition`: The partition this message is associated with
+  #   `offset`: The offset from the partition this message is associated with
+  #   `key`: A ByteBuffer containing the message key
+  config :decorate_events, :validate => :boolean, :default => false
 
-  
+
   public
   def register
+    LogStash::Logger.setup_log4j(@logger)
     @runner_threads = []
   end # def register
 
@@ -152,12 +164,25 @@ class LogStash::Inputs::Kafka < LogStash::Inputs::Base
   def thread_runner(logstash_queue, consumer)
     Thread.new do
       begin
-        consumer.subscribe(topics);
+        unless @topics_pattern.nil?
+          nooplistener = org.apache.kafka.clients.consumer.internals.NoOpConsumerRebalanceListener.new
+          pattern = java.util.regex.Pattern.compile(@topics_pattern)
+          consumer.subscribe(pattern, nooplistener)
+        else
+          consumer.subscribe(topics);
+        end
         while !stop?
           records = consumer.poll(poll_timeout_ms);
           for record in records do
             @codec.decode(record.value.to_s) do |event|
               decorate(event)
+              if @decorate_events
+                event.set("[kafka][topic]", record.topic)
+                event.set("[kafka][consumer_group]", @group_id)
+                event.set("[kafka][partition]", record.partition)
+                event.set("[kafka][offset]", record.offset)
+                event.set("[kafka][key]", record.key)
+              end
               logstash_queue << event
             end
           end
