@@ -3,19 +3,9 @@ language: ruby
 cache: bundler
 rvm:
   - jruby-1.7.25
-before_install:
-  - curl -s -o kafka.tgz http://ftp.wayne.edu/apache/kafka/0.9.0.0/kafka_2.11-0.9.0.0.tgz
-  - mkdir kafka && tar xzf kafka.tgz -C kafka --strip-components 1
-  - kafka/bin/zookeeper-server-start.sh kafka/config/zookeeper.properties &
-  - kafka/bin/kafka-server-start.sh kafka/config/server.properties &
-  - sleep 3
-  - kafka/bin/kafka-topics.sh --create --partitions 3 --replication-factor 1 --topic topic3 --zookeeper localhost:2181
-  - kafka/bin/kafka-topics.sh --create --partitions 3 --replication-factor 1 --topic snappy_topic --zookeeper localhost:2181
-  - kafka/bin/kafka-topics.sh --create --partitions 3 --replication-factor 1 --topic lz4_topic --zookeeper localhost:2181
-  - wget https://s3.amazonaws.com/data.elasticsearch.org/apache_logs/apache_logs.txt
-  - cat apache_logs.txt | kafka/bin/kafka-console-producer.sh --topic topic3 --broker-list localhost:9092
-  - cat apache_logs.txt | kafka/bin/kafka-console-producer.sh --topic snappy_topic --broker-list localhost:9092 --compression-codec snappy
-  - cat apache_logs.txt | kafka/bin/kafka-console-producer.sh --topic lz4_topic --broker-list localhost:9092 --compression-codec lz4
+env:
+  - KAFKA_VERSION=0.9.0.0
+before_install: ./kafka_test_setup.sh
 before_script:
   - bundle exec rake vendor
   - bundle exec rake install_jars
