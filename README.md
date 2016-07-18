@@ -42,6 +42,7 @@ Need help? Try #logstash on freenode IRC or the https://discuss.elastic.co/c/log
 - Install dependencies
 ```sh
 bundle install
+rake install_jars
 ```
 
 #### Test
@@ -50,6 +51,7 @@ bundle install
 
 ```sh
 bundle install
+rake install_jars
 ```
 
 - Run tests
