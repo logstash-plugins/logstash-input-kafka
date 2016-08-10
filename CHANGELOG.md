@@ -1,3 +1,6 @@
+## 5.0.3
+  - Internal: gem cleanup
+
 ## 5.0.2
   - Release a new version of the gem that includes jars
 
