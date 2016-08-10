@@ -1,3 +1,6 @@
+## 5.0.2
+  - Release a new version of the gem that includes jars
+
 ## 5.0.1
   - Relax constraint on logstash-core-plugin-api to >= 1.60 <= 2.99
 
