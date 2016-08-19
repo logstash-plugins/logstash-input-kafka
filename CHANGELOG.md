@@ -1,3 +1,6 @@
+## 5.0.4
+  - Update to Kafka version 0.10.0.1 for bug fixes
+
 ## 5.0.3
   - Internal: gem cleanup
 
