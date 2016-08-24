@@ -7,20 +7,21 @@ require 'logstash-input-kafka_jars.rb'
 # This input will read events from a Kafka topic. It uses the the newly designed
 # 0.10 version of consumer API provided by Kafka to read messages from the broker.
 #
-# Here's a compatibility matrix that shows the Kafka broker and client versions that are compatible with each combination
+# Here's a compatibility matrix that shows the Kafka client versions that are compatible with each combination
 # of Logstash and the Kafka input plugin: 
 # 
 # [options="header"]
 # |==========================================================
-# |Kafka Broker Version |Kafka Client Version |Logstash Version |Plugin Version |Why?
-# |0.8       |0.8       |2.0.0 - 2.x.x   |<3.0.0 |Legacy, 0.8 is still popular 
-# |0.9       |0.9       |2.0.0 - 2.3.x   | 3.x.x |Works with the old Ruby Event API (`event['product']['price'] = 10`)  
-# |0.9       |0.9       |2.4.0 - 5.0.x   | 4.x.x |Works with the new getter/setter APIs (`event.set('[product][price]', 10)`)
-# |0.10      |0.10      |2.4.0 - 5.0.x   | 5.x.x |Not compatible with the 0.9 broker 
+# |Kafka Client Version |Logstash Version |Plugin Version |Security Features |Why?
+# |0.8       |2.0.0 - 2.x.x   |<3.0.0 | |Legacy, 0.8 is still popular 
+# |0.9       |2.0.0 - 2.3.x   | 3.x.x |Basic Auth, SSL |Works with the old Ruby Event API (`event['product']['price'] = 10`)  
+# |0.9       |2.4.0 - 5.0.x   | 4.x.x |Basic Auth, SSL |Works with the new getter/setter APIs (`event.set('[product][price]', 10)`)
+# |0.10      |2.4.0 - 5.0.x   | 5.x.x |Basic Auth, SSL |Not compatible with the 0.9 broker 
 # |==========================================================
 # 
-# NOTE: It's a good idea to upgrade brokers before consumers/producers because brokers target backwards compatibility.
-# For example, the 0.9 broker will work with both the 0.8 consumer and 0.9 consumer APIs, but not the other way around.
+# NOTE: We recommended that you use matching Kafka client and broker versions. During upgrades, you should
+# upgrade brokers before clients because brokers target backwards compatibility. For example, the 0.9 broker
+# is compatible with both the 0.8 consumer and 0.9 consumer APIs, but not the other way around.
 #
 # The Logstash Kafka consumer handles group management and uses the default offset management
 # strategy using Kafka topics.
