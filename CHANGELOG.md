@@ -1,3 +1,6 @@
+## 5.0.5
+  - place setup_log4j for logging registration behind version check
+
 ## 5.0.4
   - Update to Kafka version 0.10.0.1 for bug fixes
 

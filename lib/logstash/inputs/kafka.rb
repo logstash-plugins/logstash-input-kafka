@@ -166,7 +166,11 @@ class LogStash::Inputs::Kafka < LogStash::Inputs::Base
 
   public
   def register
-    LogStash::Logger.setup_log4j(@logger)
+    # Logstash 2.4
+    if defined?(LogStash::Logger) && LogStash::Logger.respond_to?(:setup_log4j)
+      LogStash::Logger.setup_log4j(@logger)
+    end
+
     @runner_threads = []
   end # def register
 
@@ -260,7 +264,7 @@ class LogStash::Inputs::Kafka < LogStash::Inputs::Base
 
       org.apache.kafka.clients.consumer.KafkaConsumer.new(props)
     rescue => e
-      logger.error("Unable to create Kafka consumer from given configuration", :kafka_error_message => e)
+      @logger.error("Unable to create Kafka consumer from given configuration", :kafka_error_message => e)
       throw e
     end
   end
