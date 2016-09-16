@@ -1,3 +1,9 @@
+## 3.1.0
+  - bump to client version 0.9.0.1
+  - add back :decorate_events option
+  - update :topics to default to ["logstash"]
+  - add :topics_pattern configuration option
+
 ## 3.0.3
   - Revert back to not configuring log4j here in this plugin. This setup method used 
   will hardcode log4j setting which means you cannot configure it. Its better to add 
