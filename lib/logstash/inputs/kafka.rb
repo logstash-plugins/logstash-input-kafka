@@ -150,6 +150,8 @@ class LogStash::Inputs::Kafka < LogStash::Inputs::Base
   config :ssl_truststore_location, :validate => :path
   # The truststore password
   config :ssl_truststore_password, :validate => :password
+  # Password of the private key in the key store for client authentication if needed.
+  config :ssl_key_password, :validate => :password
   # If client authentication is required, this setting stores the keystore path.
   config :ssl_keystore_location, :validate => :path
   # If client authentication is required, this setting stores the keystore password
@@ -258,6 +260,7 @@ class LogStash::Inputs::Kafka < LogStash::Inputs::Base
         props.put("ssl.truststore.password", ssl_truststore_password.value) unless ssl_truststore_password.nil?
 
         #Client auth stuff
+        props.put("ssl.key.password", ssl_key_password.value) unless ssl_key_password.nil?
         props.put("ssl.keystore.location", ssl_keystore_location) unless ssl_keystore_location.nil?
         props.put("ssl.keystore.password", ssl_keystore_password.value) unless ssl_keystore_password.nil?
       end
