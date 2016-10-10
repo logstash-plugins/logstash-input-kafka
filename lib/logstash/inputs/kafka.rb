@@ -212,6 +212,10 @@ class LogStash::Inputs::Kafka < LogStash::Inputs::Base
               logstash_queue << event
             end
           end
+          # Manual offset commit
+          if @enable_auto_commit == "false"
+            consumer.commitSync
+          end
         end
       rescue org.apache.kafka.common.errors.WakeupException => e
         raise e if !stop?
