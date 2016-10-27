@@ -1,6 +1,6 @@
 Gem::Specification.new do |s|
   s.name            = 'logstash-input-kafka'
-  s.version         = '5.0.5'
+  s.version         = '5.0.7'
   s.licenses        = ['Apache License (2.0)']
   s.summary         = 'This input will read events from a Kafka topic. It uses the high level consumer API provided by Kafka to read messages from the broker'
   s.description     = "This gem is a Logstash plugin required to be installed on top of the Logstash core pipeline using $LS_HOME/bin/logstash-plugin install gemname. This gem is not a stand-alone program"
@@ -8,6 +8,7 @@ Gem::Specification.new do |s|
   s.email           = 'info@elastic.co'
   s.homepage        = "http://www.elastic.co/guide/en/logstash/current/index.html"
   s.require_paths = ['lib']
+  s.platform = "java"
 
   # Files
   s.files = Dir['lib/**/*.rb','spec/**/*','vendor/**/*','*.gemspec','*.md','CONTRIBUTORS','Gemfile','LICENSE','NOTICE.TXT']
@@ -32,4 +33,3 @@ Gem::Specification.new do |s|
   s.add_development_dependency 'logstash-devutils'
   s.add_development_dependency 'rspec-wait'
 end
-
