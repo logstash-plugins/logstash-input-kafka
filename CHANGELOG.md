@@ -1,3 +1,6 @@
+## 6.0.0
+  - Breaking: Support for Kafka 0.10.1.0. Only supports brokers 0.10.1.x or later.
+
 ## 5.0.5
   - place setup_log4j for logging registration behind version check
 
