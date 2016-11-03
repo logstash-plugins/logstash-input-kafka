@@ -15,8 +15,8 @@ Here's a table that describes the compatibility matrix for Kafka Broker support.
 | 0.8           | 2.0 - 2.x   | < 3.0.0 | <3.0.0 | Legacy, 0.8 is still popular |
 | 0.9           | 2.0 - 2.3.x   |   3.0.0 | 3.0.0  | Intermediate release before 0.10 that works with old Ruby Event API `[]`  |
 | 0.9          | 2.4, 5.0           |   4.0.0 | 4.0.0  | Intermediate release before 0.10 with new get/set API |
-| 0.10         | 2.4, 5.0           |   5.0.0 | 5.0.0  | Track latest Kafka release. Not compatible with 0.9 broker |
-
+| 0.10.0.x         | 2.4, 5.0           |   5.0.0 | 5.0.0  | Track latest Kafka release. Not compatible with 0.9 broker |
+| 0.10.1.x         | 2.4, 5.0           |   6.0.0 | X  | Track latest Kafka release. Not compatible with < 0.10.0.x broker |
 ## Documentation
 
 https://www.elastic.co/guide/en/logstash/current/plugins-inputs-kafka.html
