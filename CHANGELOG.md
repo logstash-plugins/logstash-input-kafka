@@ -1,3 +1,6 @@
+## 6.0.1
+  - default `poll_timeout_ms` to 100ms
+
 ## 6.0.0
   - Breaking: Support for Kafka 0.10.1.0. Only supports brokers 0.10.1.x or later.
 
