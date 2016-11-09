@@ -147,14 +147,18 @@ class LogStash::Inputs::Kafka < LogStash::Inputs::Base
   config :poll_timeout_ms, :validate => :number, :default => 100
   # Enable SSL/TLS secured communication to Kafka broker.
   config :ssl, :validate => :boolean, :default => false
-  # The JKS truststore path to validate the Kafka broker's certificate.
+  # The truststore path to validate the Kafka broker's certificate.
   config :ssl_truststore_location, :validate => :path
   # The truststore password
   config :ssl_truststore_password, :validate => :password
+  # The truststore type.
+  config :ssl_truststore_type, :validate => :string
   # If client authentication is required, this setting stores the keystore path.
   config :ssl_keystore_location, :validate => :path
   # If client authentication is required, this setting stores the keystore password
   config :ssl_keystore_password, :validate => :password
+  # The keystore type.
+  config :ssl_keystore_type, :validate => :string
   # Option to add Kafka metadata like topic, message size to the event.
   # This will add a field named `kafka` to the logstash event containing the following attributes:
   #   `topic`: The topic this message is associated with
@@ -257,10 +261,12 @@ class LogStash::Inputs::Kafka < LogStash::Inputs::Base
         props.put("security.protocol", "SSL")
         props.put("ssl.truststore.location", ssl_truststore_location)
         props.put("ssl.truststore.password", ssl_truststore_password.value) unless ssl_truststore_password.nil?
+        props.put("ssl.truststore.type", ssl_truststore_type) unless ssl_truststore_type.nil?
 
         #Client auth stuff
         props.put("ssl.keystore.location", ssl_keystore_location) unless ssl_keystore_location.nil?
         props.put("ssl.keystore.password", ssl_keystore_password.value) unless ssl_keystore_password.nil?
+        props.put("ssl.keystore.type", ssl_keystore_type) unless ssl_keystore_type.nil?
       end
 
       org.apache.kafka.clients.consumer.KafkaConsumer.new(props)
