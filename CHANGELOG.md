@@ -1,3 +1,6 @@
+## 5.0.6
+  - default `poll_timeout_ms` to 100ms
+
 ## 5.0.5
   - place setup_log4j for logging registration behind version check
 
