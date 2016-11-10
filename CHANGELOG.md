@@ -1,3 +1,6 @@
+## 4.1.0
+  - fix: Really support Kafka 0.9 for LS 5.x, logging changes broke 4.0.0
+
 ## 4.0.0
   - Republish all the gems under jruby.
   - Update the plugin to the version 2.0 of the plugin api, this change is required for Logstash 5.0 compatibility. See https://github.com/elastic/logstash/issues/5141

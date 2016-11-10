@@ -133,7 +133,10 @@ class LogStash::Inputs::Kafka < LogStash::Inputs::Base
   
   public
   def register
-    LogStash::Logger.setup_log4j(@logger)
+    # Logstash 2.4
+    if defined?(LogStash::Logger) && LogStash::Logger.respond_to?(:setup_log4j)
+      LogStash::Logger.setup_log4j(@logger)
+    end
     @runner_threads = []
   end # def register
 
