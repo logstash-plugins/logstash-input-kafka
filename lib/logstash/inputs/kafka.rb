@@ -158,6 +158,8 @@ class LogStash::Inputs::Kafka < LogStash::Inputs::Base
   config :ssl_keystore_password, :validate => :password
   # The keystore type.
   config :ssl_keystore_type, :validate => :string
+  # The password of the private key in the key store file.
+  config :ssl_key_password, :validate => :password 
   # Option to add Kafka metadata like topic, message size to the event.
   # This will add a field named `kafka` to the logstash event containing the following attributes:
   #   `topic`: The topic this message is associated with
@@ -265,6 +267,7 @@ class LogStash::Inputs::Kafka < LogStash::Inputs::Base
         #Client auth stuff
         props.put("ssl.keystore.location", ssl_keystore_location) unless ssl_keystore_location.nil?
         props.put("ssl.keystore.password", ssl_keystore_password.value) unless ssl_keystore_password.nil?
+        props.put("ssl.key.password", ssl_key_password.value) unless ssl_key_password.nil?
         props.put("ssl.keystore.type", ssl_keystore_type) unless ssl_keystore_type.nil?
       end
 
