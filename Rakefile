@@ -13,3 +13,5 @@ task :install_jars do
   ENV['JARS_VENDOR'] = "false"
   Jars::Installer.new.vendor_jars!(false)
 end
+
+task :vendor => :install_jars
