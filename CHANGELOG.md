@@ -1,3 +1,6 @@
+## 4.1.1
+  - fix: vendor aliasing issue when publishing
+
 ## 4.1.0
   - fix: Really support Kafka 0.9 for LS 5.x, logging changes broke 4.0.0
 
