@@ -164,6 +164,7 @@ class LogStash::Inputs::Kafka < LogStash::Inputs::Base
   #   `key`: A ByteBuffer containing the message key
   config :decorate_events, :validate => :boolean, :default => false
 
+  config :reset_to_timestamp, :validate => :number
 
   public
   def register
@@ -197,7 +198,9 @@ class LogStash::Inputs::Kafka < LogStash::Inputs::Base
           consumer.subscribe(pattern, nooplistener)
         else
           consumer.subscribe(topics);
+          seek_to_timestamp(consumer, topics, @reset_to_timestamp) unless @reset_to_timestamp.nil?
         end
+
         while !stop?
           records = consumer.poll(poll_timeout_ms);
           for record in records do
@@ -269,4 +272,29 @@ class LogStash::Inputs::Kafka < LogStash::Inputs::Base
       throw e
     end
   end
+
+  def seek_to_timestamp(consumer, topics, timestamp)
+    topics.each do |topic|
+      # get all partitions for this topic
+      partition_info = consumer.partitionsFor(topic)
+      timestamps_to_search = Hash.new
+      partition_info.each do |p|
+        topic_partition = org.apache.kafka.common.TopicPartition.new(p.topic, p.partition)
+        # For each parition in this topic, search by this timestamp
+        timestamps_to_search[topic_partition] = timestamp
+        # this is a blocking call
+        offset_and_times = consumer.offsetsForTimes(timestamps_to_search)
+        if offset_and_times.nil?
+          next
+        end
+        # there is an offset greater than supplied timestamp
+        seek_offset = offset_and_times.get(topic_partition).offset
+        # this does not work as there are no partition assignment yet :(
+        # See https://issues.apache.org/jira/browse/KAFKA-2359
+        # We need to call poll() and then seek which does not make sense and can lose data
+        consumer.seek(topic_partition, seek_offset);
+      end
+    end
+  end
+
 end #class LogStash::Inputs::Kafka
