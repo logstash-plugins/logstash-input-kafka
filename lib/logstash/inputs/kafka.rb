@@ -147,14 +147,20 @@ class LogStash::Inputs::Kafka < LogStash::Inputs::Base
   config :poll_timeout_ms, :validate => :number, :default => 100
   # Enable SSL/TLS secured communication to Kafka broker.
   config :ssl, :validate => :boolean, :default => false, :deprecated => "Use security_protocol => 'ssl'"
+  # The truststore type.
+  config :ssl_truststore_type, :validate => :string
   # The JKS truststore path to validate the Kafka broker's certificate.
   config :ssl_truststore_location, :validate => :path
   # The truststore password
   config :ssl_truststore_password, :validate => :password
+  # The keystore type.
+  config :ssl_keystore_type, :validate => :string
   # If client authentication is required, this setting stores the keystore path.
   config :ssl_keystore_location, :validate => :path
   # If client authentication is required, this setting stores the keystore password
   config :ssl_keystore_password, :validate => :password
+  # The password of the private key in the key store file.
+  config :ssl_key_password, :validate => :password
   # Security protocol to use, which can be either of PLAINTEXT,SSL,SASL_PLAINTEXT,SASL_SSL
   config :security_protocol, :validate => ["PLAINTEXT", "SSL", "SASL_PLAINTEXT", "SASL_SSL"], :default => "PLAINTEXT"
   # http://kafka.apache.org/documentation.html#security_sasl[SASL mechanism] used for client connections. 
@@ -300,10 +306,13 @@ class LogStash::Inputs::Kafka < LogStash::Inputs::Base
   end
 
   def set_trustore_keystore_config(props)
+    props.put("ssl.truststore.type", ssl_truststore_type) unless ssl_truststore_type.nil?
     props.put("ssl.truststore.location", ssl_truststore_location)
     props.put("ssl.truststore.password", ssl_truststore_password.value) unless ssl_truststore_password.nil?
 
     # Client auth stuff
+    props.put("ssl.keystore.type", ssl_keystore_type) unless ssl_keystore_type.nil?
+    props.put("ssl.key.password", ssl_key_password.value) unless ssl_key_password.nil?
     props.put("ssl.keystore.location", ssl_keystore_location) unless ssl_keystore_location.nil?
     props.put("ssl.keystore.password", ssl_keystore_password.value) unless ssl_keystore_password.nil?
   end
