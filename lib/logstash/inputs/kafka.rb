@@ -146,7 +146,7 @@ class LogStash::Inputs::Kafka < LogStash::Inputs::Base
   # Time kafka consumer will wait to receive new messages from topics
   config :poll_timeout_ms, :validate => :number, :default => 100
   # Enable SSL/TLS secured communication to Kafka broker.
-  config :ssl, :validate => :boolean, :default => false
+  config :ssl, :validate => :boolean, :default => false, :deprecated => "Use security_protocol setting instead"
   # The JKS truststore path to validate the Kafka broker's certificate.
   config :ssl_truststore_location, :validate => :path
   # The truststore password
@@ -155,6 +155,30 @@ class LogStash::Inputs::Kafka < LogStash::Inputs::Base
   config :ssl_keystore_location, :validate => :path
   # If client authentication is required, this setting stores the keystore password
   config :ssl_keystore_password, :validate => :password
+  # Security protocol to use, which can be either of PLAINTEXT,SSL,SASL_PLAINTEXT,SASL_SSL
+  config :security_protocol, :validate => ["PLAINTEXT", "SSL", "SASL_PLAINTEXT", "SASL_SSL"], :default => "PLAINTEXT"
+  # http://kafka.apache.org/documentation.html#security_sasl[SASL mechanism] used for client connections. 
+  # This may be any mechanism for which a security provider is available.
+  # GSSAPI is the default mechanism.
+  config :sasl_mechanism, :validate => :string, :default => "GSSAPI"
+  # The Kerberos principal name that Kafka broker runs as. 
+  # This can be defined either in Kafka's JAAS config or in Kafka's config.
+  config :sasl_kerberos_service_name, :validate => :string
+  # The Java Authentication and Authorization Service (JAAS) API supplies user authentication and authorization 
+  # services for Kafka. This setting provides the path to the JAAS file. Sample JAAS file for Kafka client:
+  # [source,java]
+  # ----------------------------------
+  # KafkaClient {
+  #   com.sun.security.auth.module.Krb5LoginModule required
+  #   useTicketCache=true
+  #   renewTicket=true
+  #   serviceName="kafka";
+  #   };
+  # ----------------------------------
+  #
+  config :jaas_path, :validate => :path
+  # Optional path to kerberos config
+  config :kerberos_config, :validate => :path
   # Option to add Kafka metadata like topic, message size to the event.
   # This will add a field named `kafka` to the logstash event containing the following attributes:
   #   `topic`: The topic this message is associated with
@@ -253,14 +277,15 @@ class LogStash::Inputs::Kafka < LogStash::Inputs::Base
       props.put(kafka::SESSION_TIMEOUT_MS_CONFIG, session_timeout_ms) unless session_timeout_ms.nil?
       props.put(kafka::VALUE_DESERIALIZER_CLASS_CONFIG, value_deserializer_class)
 
-      if ssl
-        props.put("security.protocol", "SSL")
-        props.put("ssl.truststore.location", ssl_truststore_location)
-        props.put("ssl.truststore.password", ssl_truststore_password.value) unless ssl_truststore_password.nil?
+      props.put("security.protocol", security_protocol) unless security_protocol.nil?
 
-        #Client auth stuff
-        props.put("ssl.keystore.location", ssl_keystore_location) unless ssl_keystore_location.nil?
-        props.put("ssl.keystore.password", ssl_keystore_password.value) unless ssl_keystore_password.nil?
+      if security_protocol == "SSL"
+        set_trustore_keystore_config(props)
+      elsif security_protocol == "SASL_PLAINTEXT"
+        set_sasl_config(props)
+      elsif security_protocol == "SASL_SSL"
+        set_trustore_keystore_config
+        set_sasl_config
       end
 
       org.apache.kafka.clients.consumer.KafkaConsumer.new(props)
@@ -268,5 +293,26 @@ class LogStash::Inputs::Kafka < LogStash::Inputs::Base
       @logger.error("Unable to create Kafka consumer from given configuration", :kafka_error_message => e)
       throw e
     end
+  end
+
+  def set_trustore_keystore_config(props)
+    props.put("ssl.truststore.location", ssl_truststore_location)
+    props.put("ssl.truststore.password", ssl_truststore_password.value) unless ssl_truststore_password.nil?
+
+    # Client auth stuff
+    props.put("ssl.keystore.location", ssl_keystore_location) unless ssl_keystore_location.nil?
+    props.put("ssl.keystore.password", ssl_keystore_password.value) unless ssl_keystore_password.nil?
+  end
+
+  def set_sasl_config(props)
+    java.lang.System.setProperty("java.security.auth.login.config",jaas_path) unless jaas_path.nil?
+    java.lang.System.setProperty("java.security.krb5.conf",kerberos_config) unless kerberos_config.nil?
+
+    props.put("sasl.mechanism",sasl_mechanism)
+    if sasl_mechanism == "GSSAPI" && sasl_kerberos_service_name.nil?
+      raise LogStash::ConfigurationError, "sasl_kerberos_service_name must be specified when SASL mechanism is GSSAPI"
+    end
+
+    props.put("sasl.kerberos.service.name",sasl_kerberos_service_name)
   end
 end #class LogStash::Inputs::Kafka
