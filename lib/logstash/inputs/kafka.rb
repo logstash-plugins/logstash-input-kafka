@@ -145,7 +145,7 @@ class LogStash::Inputs::Kafka < LogStash::Inputs::Base
   # Time kafka consumer will wait to receive new messages from topics
   config :poll_timeout_ms, :validate => :number, :default => 100
   # Enable SSL/TLS secured communication to Kafka broker.
-  config :ssl, :validate => :boolean, :default => false, :deprecated => "Use security_protocol setting instead"
+  config :ssl, :validate => :boolean, :default => false, :deprecated => "Use security_protocol => 'ssl'"
   # The JKS truststore path to validate the Kafka broker's certificate.
   config :ssl_truststore_location, :validate => :path
   # The truststore password
@@ -175,8 +175,12 @@ class LogStash::Inputs::Kafka < LogStash::Inputs::Base
   #   };
   # ----------------------------------
   #
+  # Please note that specifying `jaas_path` and `kerberos_config` in the config file will add these  
+  # to the global JVM system properties. This means if you have multiple Kafka inputs, all of them would be sharing the same 
+  # `jaas_path` and `kerberos_config`. If this is not desirable, you would have to run separate instances of Logstash on 
+  # different JVM instances.
   config :jaas_path, :validate => :path
-  # Optional path to kerberos config
+  # Optional path to kerberos config file. This is krb5.conf style as detailed in https://web.mit.edu/kerberos/krb5-1.12/doc/admin/conf_files/krb5_conf.html
   config :kerberos_config, :validate => :path
   # Option to add Kafka metadata like topic, message size to the event.
   # This will add a field named `kafka` to the logstash event containing the following attributes:
