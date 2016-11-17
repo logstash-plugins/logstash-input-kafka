@@ -1,3 +1,6 @@
+## 5.1.0
+  - Add Kerberos authentication support.
+
 ## 5.0.6
   - default `poll_timeout_ms` to 100ms
 
