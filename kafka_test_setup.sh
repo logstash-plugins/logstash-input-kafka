@@ -13,10 +13,10 @@ curl -s -o kafka.tgz "http://ftp.wayne.edu/apache/kafka/$KAFKA_VERSION/kafka_2.1
 mkdir kafka && tar xzf kafka.tgz -C kafka --strip-components 1
 
 echo "Starting ZooKeeper"
-kafka/bin/zookeeper-server-start.sh kafka/config/zookeeper.properties &
+kafka/bin/zookeeper-server-start.sh -daemon kafka/config/zookeeper.properties
 sleep 10
 echo "Starting Kafka broker"
-kafka/bin/kafka-server-start.sh kafka/config/server.properties &
+kafka/bin/kafka-server-start.sh -daemon kafka/config/server.properties
 sleep 10
 
 echo "Setting up test topics with test data"
@@ -25,8 +25,8 @@ sleep 10
 kafka/bin/kafka-topics.sh --create --partitions 3 --replication-factor 1 --topic logstash_topic_snappy --zookeeper localhost:2181
 sleep 10
 kafka/bin/kafka-topics.sh --create --partitions 3 --replication-factor 1 --topic logstash_topic_lz4 --zookeeper localhost:2181
+sleep 10
 wget https://s3.amazonaws.com/data.elasticsearch.org/apache_logs/apache_logs.txt
-sleep 60
 cat apache_logs.txt | kafka/bin/kafka-console-producer.sh --topic logstash_topic_plain --broker-list localhost:9092
 sleep 10
 cat apache_logs.txt | kafka/bin/kafka-console-producer.sh --topic logstash_topic_snappy --broker-list localhost:9092 --compression-codec snappy
