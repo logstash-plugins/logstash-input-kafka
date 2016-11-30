@@ -83,6 +83,10 @@ class LogStash::Inputs::Kafka < LogStash::Inputs::Base
   # Whether records from internal topics (such as offsets) should be exposed to the consumer.
   # If set to true the only way to receive records from an internal topic is subscribing to it.
   config :exclude_internal_topics, :validate => :string
+  # The maximum amount of data the server should return for a fetch request. This is not an 
+  # absolute maximum, if the first message in the first non-empty partition of the fetch is larger 
+  # than this value, the message will still be returned to ensure that the consumer can make progress.
+  config :fetch_max_bytes, :validate => :string
   # The maximum amount of time the server will block before answering the fetch request if
   # there isn't sufficient data to immediately satisfy `fetch_min_bytes`. This
   # should be less than or equal to the timeout used in `poll_timeout_ms`
@@ -103,6 +107,12 @@ class LogStash::Inputs::Kafka < LogStash::Inputs::Base
   config :heartbeat_interval_ms, :validate => :string
   # Java Class used to deserialize the record's key
   config :key_deserializer_class, :validate => :string, :default => "org.apache.kafka.common.serialization.StringDeserializer"
+  # The maximum delay between invocations of poll() when using consumer group management. This places 
+  # an upper bound on the amount of time that the consumer can be idle before fetching more records. 
+  # If poll() is not called before expiration of this timeout, then the consumer is considered failed and 
+  # the group will rebalance in order to reassign the partitions to another member.
+  # The value of the configuration `request_timeout_ms` must always be larger than max_poll_interval_ms
+  config :max_poll_interval_ms, :validate => :string
   # The maximum amount of data per-partition the server will return. The maximum total memory used for a
   # request will be <code>#partitions * max.partition.fetch.bytes</code>. This size must be at least
   # as large as the maximum message size the server allows or else it is possible for the producer to
@@ -270,6 +280,7 @@ class LogStash::Inputs::Kafka < LogStash::Inputs::Base
       props.put(kafka::CONNECTIONS_MAX_IDLE_MS_CONFIG, connections_max_idle_ms) unless connections_max_idle_ms.nil?
       props.put(kafka::ENABLE_AUTO_COMMIT_CONFIG, enable_auto_commit)
       props.put(kafka::EXCLUDE_INTERNAL_TOPICS_CONFIG, exclude_internal_topics) unless exclude_internal_topics.nil?
+      props.put(kafka::FETCH_MAX_BYTES_CONFIG, fetch_max_bytes) unless fetch_max_bytes.nil?
       props.put(kafka::FETCH_MAX_WAIT_MS_CONFIG, fetch_max_wait_ms) unless fetch_max_wait_ms.nil?
       props.put(kafka::FETCH_MIN_BYTES_CONFIG, fetch_min_bytes) unless fetch_min_bytes.nil?
       props.put(kafka::GROUP_ID_CONFIG, group_id)
@@ -277,6 +288,7 @@ class LogStash::Inputs::Kafka < LogStash::Inputs::Base
       props.put(kafka::KEY_DESERIALIZER_CLASS_CONFIG, key_deserializer_class)
       props.put(kafka::MAX_PARTITION_FETCH_BYTES_CONFIG, max_partition_fetch_bytes) unless max_partition_fetch_bytes.nil?
       props.put(kafka::MAX_POLL_RECORDS_CONFIG, max_poll_records) unless max_poll_records.nil?
+      props.put(kafka::MAX_POLL_INTERVAL_MS_CONFIG, max_poll_interval_ms) unless max_poll_interval_ms.nil?
       props.put(kafka::METADATA_MAX_AGE_MS_CONFIG, metadata_max_age_ms) unless metadata_max_age_ms.nil?
       props.put(kafka::PARTITION_ASSIGNMENT_STRATEGY_CONFIG, partition_assignment_strategy) unless partition_assignment_strategy.nil?
       props.put(kafka::RECEIVE_BUFFER_CONFIG, receive_buffer_bytes) unless receive_buffer_bytes.nil?
