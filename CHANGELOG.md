@@ -1,3 +1,7 @@
+## 6.2.0
+  - Expose config `max_poll_interval_ms` to allow consumer to send heartbeats from a background thread
+  - Expose config `fetch_max_bytes` to control client's fetch response size limit
+
 ## 6.1.0
   - Add Kerberos authentication support.
 
