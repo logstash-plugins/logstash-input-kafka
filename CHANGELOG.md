@@ -1,3 +1,6 @@
+# 2.1.0
+ - Users can now use custom log4j file to control logging output.
+
 # 2.0.9
  - Fix shutdown sequence bug where a shutdown event found itself in queue after a shutdown was initiated
 

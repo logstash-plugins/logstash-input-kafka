@@ -115,7 +115,6 @@ class LogStash::Inputs::Kafka < LogStash::Inputs::Base
 
   public
   def register
-    LogStash::Logger.setup_log4j(@logger)
     options = {
         :zk_connect => @zk_connect,
         :group_id => @group_id,
