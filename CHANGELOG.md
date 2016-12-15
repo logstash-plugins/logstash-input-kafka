@@ -1,3 +1,6 @@
+## 6.2.1
+  - Docs: Clarify compatibility matrix and remove it from the changelog to avoid duplication.
+  
 ## 6.2.0
   - Expose config `max_poll_interval_ms` to allow consumer to send heartbeats from a background thread
   - Expose config `fetch_max_bytes` to control client's fetch response size limit
