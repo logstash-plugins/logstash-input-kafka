@@ -1,3 +1,6 @@
+## 5.1.1
+  - Docs: Clarify compatibility matrix and remove it from the changelog to avoid duplication.
+  
 ## 5.1.0
   - Add Kerberos authentication support.
 
