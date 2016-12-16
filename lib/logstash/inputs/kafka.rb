@@ -336,8 +336,9 @@ class LogStash::Inputs::Kafka < LogStash::Inputs::Base
     props.put("sasl.mechanism",sasl_mechanism)
     if sasl_mechanism == "GSSAPI" && sasl_kerberos_service_name.nil?
       raise LogStash::ConfigurationError, "sasl_kerberos_service_name must be specified when SASL mechanism is GSSAPI"
+    elsif sasl_mechanism == "GSSAPI"
+      props.put("sasl.kerberos.service.name",sasl_kerberos_service_name)
     end
-
-    props.put("sasl.kerberos.service.name",sasl_kerberos_service_name)
+    
   end
 end #class LogStash::Inputs::Kafka
