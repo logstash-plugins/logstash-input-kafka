@@ -1,3 +1,6 @@
+## 6.2.3
+  - Docs: Update Kafka compatibility matrix
+  
 ## 6.2.2
   - update kafka-clients dependency to 0.10.1.1
 
