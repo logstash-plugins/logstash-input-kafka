@@ -17,8 +17,7 @@ require 'logstash-input-kafka_jars.rb'
 # |0.9       |2.0.0 - 2.3.x   | 3.x.x |Works with the old Ruby Event API (`event['product']['price'] = 10`)  
 # |0.9       |2.4.x - 5.x.x   | 4.x.x |Works with the new getter/setter APIs (`event.set('[product][price]', 10)`)
 # |0.10.0.x  |2.4.x - 5.x.x   | 5.x.x |Not compatible with the <= 0.9 broker
-# |0.10.1.0  |2.4.x - 5.x.x   | 6.0.0 - 6.2.1 |Not compatible with <= 0.10.0.x broker
-# |0.10.1.1  |2.4.x - 5.x.x   | 6.2.2 - 6.x.x |Not compatible with <= 0.10.1.0 broker
+# |0.10.1.x  |2.4.x - 5.x.x   | 6.x.x |
 # |==========================================================
 # 
 # NOTE: We recommended that you use matching Kafka client and broker versions. During upgrades, you should
