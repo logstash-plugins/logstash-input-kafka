@@ -4,24 +4,31 @@ require 'stud/interval'
 require 'java'
 require 'logstash-input-kafka_jars.rb'
 
-# This input will read events from a Kafka topic. It uses the the newly designed
-# 0.10 version of consumer API provided by Kafka to read messages from the broker.
+# This input will read events from a Kafka topic. It uses the 0.10 version of the
+# consumer API provided by Kafka to read messages from the broker.
 #
 # Here's a compatibility matrix that shows the Kafka client versions that are compatible with each combination
 # of Logstash and the Kafka input plugin: 
 # 
 # [options="header"]
 # |==========================================================
-# |Kafka Client Version |Logstash Version |Plugin Version |Security Features |Why?
-# |0.8       |2.0.0 - 2.x.x   |<3.0.0 | |Legacy, 0.8 is still popular 
-# |0.9       |2.0.0 - 2.3.x   | 3.x.x |SSL |Works with the old Ruby Event API (`event['product']['price'] = 10`)  
-# |0.9       |2.4.x - 5.x.x   | 4.x.x |SSL |Works with the new getter/setter APIs (`event.set('[product][price]', 10)`)
-# |0.10.0.x  |2.4.x - 5.x.x   | 5.x.x |SSL |Not compatible with the <= 0.9 broker
+# |Kafka Client Version |Logstash Version |Plugin Version |Why?
+# |0.8       |2.0.0 - 2.x.x   |<3.0.0 |Legacy, 0.8 is still popular 
+# |0.9       |2.0.0 - 2.3.x   | 3.x.x |Works with the old Ruby Event API (`event['product']['price'] = 10`)  
+# |0.9       |2.4.x - 5.x.x   | 4.x.x |Works with the new getter/setter APIs (`event.set('[product][price]', 10)`)
+# |0.10.0.x  |2.4.x - 5.x.x   | 5.x.x |Not compatible with the <= 0.9 broker
 # |==========================================================
 # 
 # NOTE: We recommended that you use matching Kafka client and broker versions. During upgrades, you should
 # upgrade brokers before clients because brokers target backwards compatibility. For example, the 0.9 broker
 # is compatible with both the 0.8 consumer and 0.9 consumer APIs, but not the other way around.
+#
+# This input supports connecting to Kafka over:
+#
+# * SSL (requires plugin version 3.0.0 or later)
+# * Kerberos SASL (requires plugin version 5.1.0 or later) 
+#
+# By default security is disabled but can be turned on as needed.
 #
 # The Logstash Kafka consumer handles group management and uses the default offset management
 # strategy using Kafka topics.
@@ -38,9 +45,6 @@ require 'logstash-input-kafka_jars.rb'
 # For more information see http://kafka.apache.org/documentation.html#theconsumer
 #
 # Kafka consumer configuration: http://kafka.apache.org/documentation.html#consumerconfigs
-#
-# This version also adds support for SSL/TLS security connection to Kafka. By default SSL is
-# disabled but can be turned on as needed.
 #
 class LogStash::Inputs::Kafka < LogStash::Inputs::Base
   config_name 'kafka'
