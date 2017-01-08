@@ -1,3 +1,6 @@
+## 5.1.2
+  - Docs: Move info about security features out of the compatibility matrix and into the main text.
+ 
 ## 5.1.1
   - Docs: Clarify compatibility matrix and remove it from the changelog to avoid duplication.
   
