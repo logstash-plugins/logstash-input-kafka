@@ -1,3 +1,7 @@
+## 5.1.3
+  - Make error reporting clearer when connection fails
+  - set kerberos only when using GSSAPI
+
 ## 5.1.2
   - Docs: Move info about security features out of the compatibility matrix and into the main text.
  
