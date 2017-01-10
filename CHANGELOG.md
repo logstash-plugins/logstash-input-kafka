@@ -1,3 +1,6 @@
+## 6.2.4
+  - Make error reporting more clear when connection fails 
+
 ## 6.2.3
   - Docs: Update Kafka compatibility matrix
   
