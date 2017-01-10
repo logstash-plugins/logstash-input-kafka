@@ -1,3 +1,6 @@
+## 5.1.4
+  - Fix log4j bootstrapping for 2.4
+
 ## 5.1.3
   - Make error reporting clearer when connection fails
   - set kerberos only when using GSSAPI
