@@ -220,7 +220,7 @@ class LogStash::Inputs::Kafka < LogStash::Inputs::Base
 
   public
   def run(logstash_queue)
-    @runner_consumers = consumer_threads.times.map { || create_consumer }
+    @runner_consumers = consumer_threads.times.map { |i| create_consumer("#{client_id}-#{i}") }
     @runner_threads = @runner_consumers.map { |consumer| thread_runner(logstash_queue, consumer) }
     @runner_threads.each { |t| t.join }
   end # def run
@@ -228,6 +228,11 @@ class LogStash::Inputs::Kafka < LogStash::Inputs::Base
   public
   def stop
     @runner_consumers.each { |c| c.wakeup }
+  end
+
+  public
+  def kafka_consumers
+    @runner_consumers
   end
 
   private
@@ -266,7 +271,7 @@ class LogStash::Inputs::Kafka < LogStash::Inputs::Base
   end
 
   private
-  def create_consumer
+  def create_consumer(client_id)
     begin
       props = java.util.Properties.new
       kafka = org.apache.kafka.clients.consumer.ConsumerConfig
