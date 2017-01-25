@@ -1,3 +1,6 @@
+## 6.2.5
+  - Fix a bug where consumer was not correctly setup when `SASL_SSL` option was specified. 
+
 ## 6.2.4
   - Make error reporting more clear when connection fails 
 
