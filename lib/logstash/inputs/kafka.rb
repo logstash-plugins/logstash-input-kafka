@@ -292,8 +292,8 @@ class LogStash::Inputs::Kafka < LogStash::Inputs::Base
       elsif security_protocol == "SASL_PLAINTEXT"
         set_sasl_config(props)
       elsif security_protocol == "SASL_SSL"
-        set_trustore_keystore_config
-        set_sasl_config
+        set_trustore_keystore_config(props)
+        set_sasl_config(props)
       end
 
       org.apache.kafka.clients.consumer.KafkaConsumer.new(props)

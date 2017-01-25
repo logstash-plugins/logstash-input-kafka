@@ -1,3 +1,6 @@
+## 5.1.5
+  - Fix a bug where consumer was not correctly setup when `SASL_SSL` option was specified. 
+
 ## 5.1.4
   - Fix log4j bootstrapping for 2.4
 
