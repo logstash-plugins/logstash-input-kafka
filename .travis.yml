@@ -6,10 +6,7 @@ rvm:
   - jruby-1.7.25
 env:
   - KAFKA_VERSION=0.10.1.0
-before_install:
-    - rvm @global do gem uninstall bundler --all --ignore-dependencies --executables
-    - rvm @global do gem install bundler -v '1.13.7'
-    - ./kafka_test_setup.sh
+before_install: ./kafka_test_setup.sh
 before_script:
   - bundle exec rake vendor
 script: bundle exec rspec && bundle exec rspec --tag integration
