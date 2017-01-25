@@ -1,3 +1,6 @@
+## 5.1.6
+  - fix: Client ID is no longer reused across multiple Kafka consumer instances
+
 ## 5.1.5
   - Fix a bug where consumer was not correctly setup when `SASL_SSL` option was specified. 
 
