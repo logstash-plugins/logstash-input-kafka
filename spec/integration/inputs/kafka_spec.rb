@@ -10,7 +10,9 @@ describe "inputs/kafka", :integration => true do
   let(:group_id_1) {rand(36**8).to_s(36)}
   let(:group_id_2) {rand(36**8).to_s(36)}
   let(:group_id_3) {rand(36**8).to_s(36)}
+  let(:group_id_4) {rand(36**8).to_s(36)}
   let(:plain_config) { { 'topics' => ['logstash_topic_plain'], 'codec' => 'plain', 'group_id' => group_id_1, 'auto_offset_reset' => 'earliest'} }
+  let(:multi_consumer_config) { plain_config.merge({"group_id" => group_id_4, "client_id" => "spec", "consumer_threads" => 3}) }
   let(:snappy_config) { { 'topics' => ['logstash_topic_snappy'], 'codec' => 'plain', 'group_id' => group_id_1, 'auto_offset_reset' => 'earliest'} }
   let(:lz4_config) { { 'topics' => ['logstash_topic_lz4'], 'codec' => 'plain', 'group_id' => group_id_1, 'auto_offset_reset' => 'earliest'} }
   let(:pattern_config) { { 'topics_pattern' => 'logstash_topic_.*', 'group_id' => group_id_2, 'codec' => 'plain', 'auto_offset_reset' => 'earliest'} }  
@@ -53,11 +55,21 @@ describe "inputs/kafka", :integration => true do
       wait(timeout_seconds).for { queue.length }.to eq(num_events)
       expect(queue.length).to eq(num_events)
     end
-    
+
+    it "should consumer all messages with multiple consumers" do
+      kafka_input = LogStash::Inputs::Kafka.new(multi_consumer_config)
+      queue = Array.new
+      t = thread_it(kafka_input, queue)
+      t.run
+      wait(timeout_seconds).for { queue.length }.to eq(num_events)
+      expect(queue.length).to eq(num_events)
+      kafka_input.kafka_consumers.each_with_index do |consumer, i|
+        expect(consumer.metrics.keys.first.tags["client-id"]).to eq("spec-#{i}")
+      end
+    end
   end
 
   describe "#kafka-topics-pattern" do
-    
     def thread_it(kafka_input, queue)
       Thread.new do
         begin
@@ -65,7 +77,7 @@ describe "inputs/kafka", :integration => true do
         end
       end
     end
-      
+
     it "should consume all messages from all 3 topics" do
       kafka_input = LogStash::Inputs::Kafka.new(pattern_config)
       queue = Array.new
@@ -73,7 +85,7 @@ describe "inputs/kafka", :integration => true do
       t.run
       wait(timeout_seconds).for { queue.length }.to eq(3*num_events)
       expect(queue.length).to eq(3*num_events)
-    end    
+    end
   end
 
   describe "#kafka-decorate" do
@@ -84,7 +96,7 @@ describe "inputs/kafka", :integration => true do
         end
       end
     end
-      
+
     it "should show the right topic and group name in decorated kafka section" do
       kafka_input = LogStash::Inputs::Kafka.new(decorate_config)
       queue = Queue.new
