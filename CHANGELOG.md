@@ -1,3 +1,7 @@
+## 4.2.0
+  - Add topic pattern config which allows consuming from multiple topics
+  - Restored event decorators which adds metadata.
+
 ## 4.1.1
   - fix: vendor aliasing issue when publishing
 
