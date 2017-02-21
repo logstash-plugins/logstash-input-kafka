@@ -1,3 +1,6 @@
+## 6.2.7
+  - fix: Added record timestamp in event decoration
+
 ## 6.2.6
   - fix: Client ID is no longer reused across multiple Kafka consumer instances
 
