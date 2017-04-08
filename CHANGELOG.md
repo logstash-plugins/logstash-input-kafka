@@ -1,3 +1,6 @@
+## 5.1.7
+  - Fix NPE when SASL_SSL+PLAIN (no Kerberos) options are specified.
+
 ## 5.1.6
   - fix: Client ID is no longer reused across multiple Kafka consumer instances
 
