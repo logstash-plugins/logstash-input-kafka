@@ -61,7 +61,7 @@ class LogStash::Inputs::Kafka < LogStash::Inputs::Base
   # * none: throw exception to the consumer if no previous offset is found for the consumer's group
   # * anything else: throw exception to the consumer.
   config :auto_offset_reset, :validate => :string
-  # A list of URLs to use for establishing the initial connection to the cluster.
+  # A list of URLs of Kafka instances to use for establishing the initial connection to the cluster.
   # This list should be in the form of `host1:port1,host2:port2` These urls are just used
   # for the initial connection to discover the full cluster membership (which may change dynamically)
   # so this list need not contain the full set of servers (you may want more than one, though, in
