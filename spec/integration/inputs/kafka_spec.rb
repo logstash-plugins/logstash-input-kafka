@@ -17,6 +17,7 @@ describe "inputs/kafka", :integration => true do
   let(:lz4_config) { { 'topics' => ['logstash_topic_lz4'], 'codec' => 'plain', 'group_id' => group_id_1, 'auto_offset_reset' => 'earliest'} }
   let(:pattern_config) { { 'topics_pattern' => 'logstash_topic_.*', 'group_id' => group_id_2, 'codec' => 'plain', 'auto_offset_reset' => 'earliest'} }  
   let(:decorate_config) { { 'topics' => ['logstash_topic_plain'], 'codec' => 'plain', 'group_id' => group_id_3, 'auto_offset_reset' => 'earliest', 'decorate_events' => true} }
+  let(:manual_commit_config) { { 'topics' => ['logstash_topic_plain'], 'codec' => 'plain', 'group_id' => group_id_4, 'auto_offset_reset' => 'earliest', 'enable_auto_commit' => 'false'} }
   let(:timeout_seconds) { 120 }
   let(:num_events) { 103 }
 
@@ -107,6 +108,25 @@ describe "inputs/kafka", :integration => true do
       event = queue.shift
       expect(event.get("kafka")["topic"]).to eq("logstash_topic_plain")
       expect(event.get("kafka")["consumer_group"]).to eq(group_id_3)
+    end
+  end
+
+  describe "#kafka-offset-commit" do
+    def thread_it(kafka_input, queue)
+      Thread.new do
+        begin
+          kafka_input.run(queue)
+        end
+      end
+    end
+
+    it "should manually commit offsets" do
+      kafka_input = LogStash::Inputs::Kafka.new(manual_commit_config)
+      queue = Array.new
+      t = thread_it(kafka_input, queue)
+      t.run
+      wait(timeout_seconds).for { queue.length }.to eq(num_events)
+      expect(queue.length).to eq(num_events)
     end
   end
 end
