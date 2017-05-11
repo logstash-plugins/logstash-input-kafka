@@ -1,3 +1,6 @@
+## 6.2.8
+  - Upgrade Kafka client to version 0.10.2.1
+
 ## 6.2.7
   - Fix NPE when SASL_SSL+PLAIN (no Kerberos) is specified.
 
