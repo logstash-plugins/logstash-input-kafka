@@ -18,7 +18,7 @@ Gem::Specification.new do |s|
   # Special flag to let us know this is actually a logstash plugin
   s.metadata = { 'logstash_plugin' => 'true', 'group' => 'input'}
 
-  s.requirements << "jar 'org.apache.kafka:kafka-clients', '0.10.1.1'"
+  s.requirements << "jar 'org.apache.kafka:kafka-clients', '0.10.2.1'"
   s.requirements << "jar 'org.slf4j:slf4j-log4j12', '1.7.21'"
   s.requirements << "jar 'org.apache.logging.log4j:log4j-1.2-api', '2.6.2'"
 
