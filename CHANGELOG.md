@@ -1,4 +1,4 @@
-## 6.2.8
+## 6.3.0
   - Upgrade Kafka client to version 0.10.2.1
 
 ## 6.2.7
