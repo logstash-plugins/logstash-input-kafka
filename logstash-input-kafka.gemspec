@@ -19,7 +19,7 @@ Gem::Specification.new do |s|
   s.metadata = { 'logstash_plugin' => 'true', 'group' => 'input'}
 
   s.requirements << "jar 'org.apache.kafka:kafka-clients', '0.10.0.1'"
-  s.requirements << "jar 'org.slf4j:slf4j-log4j12', '1.7.21'"
+  s.requirements << "jar 'org.apache.logging.log4j:log4j-slf4j-impl', '2.8.2'"
 
   s.add_development_dependency 'jar-dependencies', '~> 0.3.2'
 
