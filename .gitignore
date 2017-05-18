@@ -6,3 +6,4 @@ lib/log4j/
 lib/net/
 lib/org/
 vendor/
+build/
