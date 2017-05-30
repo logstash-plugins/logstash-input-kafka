@@ -109,6 +109,10 @@ class LogStash::Inputs::Kafka < LogStash::Inputs::Base
   config :decoder_class, :validate => :string, :default => 'kafka.serializer.DefaultDecoder'
   # The serializer class for keys (defaults to the same default as for messages)
   config :key_decoder_class, :validate => :string, :default => 'kafka.serializer.DefaultDecoder'
+  # If you are using "kafka" as offsets.storage, you can dual commit offsets to ZooKeeper (in addition to Kafka)
+  config :dual_commit_enabled, :validate => :boolean, :default => true
+  # Select where offsets should be stored (zookeeper or kafka)
+  config :offsets_storage, :validate => :string, :default => "zookeeper"
 
   class KafkaShutdownEvent; end
   KAFKA_SHUTDOWN_EVENT = KafkaShutdownEvent.new
@@ -131,7 +135,9 @@ class LogStash::Inputs::Kafka < LogStash::Inputs::Base
         :allow_topics => @white_list,
         :filter_topics => @black_list,
         :value_decoder_class => @decoder_class,
-        :key_decoder_class => @key_decoder_class
+        :key_decoder_class => @key_decoder_class,
+        :dual_commit_enabled => @dual_commit_enabled,
+        :offsets_storage => @offsets_storage
     }
     if @reset_beginning
       options[:reset_beginning] = 'from-beginning'
