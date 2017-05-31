@@ -1,3 +1,9 @@
 *.gem
 Gemfile.lock
 .bundle
+.idea
+lib/log4j/
+lib/net/
+lib/org/
+vendor/
+build/

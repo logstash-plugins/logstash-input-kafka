@@ -61,7 +61,7 @@ class LogStash::Inputs::Kafka < LogStash::Inputs::Base
   # * none: throw exception to the consumer if no previous offset is found for the consumer's group
   # * anything else: throw exception to the consumer.
   config :auto_offset_reset, :validate => :string
-  # A list of URLs to use for establishing the initial connection to the cluster.
+  # A list of URLs of Kafka instances to use for establishing the initial connection to the cluster.
   # This list should be in the form of `host1:port1,host2:port2` These urls are just used
   # for the initial connection to discover the full cluster membership (which may change dynamically)
   # so this list need not contain the full set of servers (you may want more than one, though, in
@@ -263,6 +263,10 @@ class LogStash::Inputs::Kafka < LogStash::Inputs::Base
               logstash_queue << event
             end
           end
+          # Manual offset commit
+          if @enable_auto_commit == "false"
+            consumer.commitSync
+          end
         end
       rescue org.apache.kafka.common.errors.WakeupException => e
         raise e if !stop?
@@ -344,9 +348,8 @@ class LogStash::Inputs::Kafka < LogStash::Inputs::Base
     props.put("sasl.mechanism",sasl_mechanism)
     if sasl_mechanism == "GSSAPI" && sasl_kerberos_service_name.nil?
       raise LogStash::ConfigurationError, "sasl_kerberos_service_name must be specified when SASL mechanism is GSSAPI"
-    elsif sasl_mechanism == "GSSAPI"
-      props.put("sasl.kerberos.service.name",sasl_kerberos_service_name)
     end
-    
+
+    props.put("sasl.kerberos.service.name",sasl_kerberos_service_name) unless sasl_kerberos_service_name.nil?
   end
 end #class LogStash::Inputs::Kafka

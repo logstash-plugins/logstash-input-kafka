@@ -1,5 +1,11 @@
-## 6.2.7
+## 6.3.1
   - fix: Added record timestamp in event decoration
+
+## 6.3.0
+  - Upgrade Kafka client to version 0.10.2.1
+
+## 6.2.7
+  - Fix NPE when SASL_SSL+PLAIN (no Kerberos) is specified.
 
 ## 6.2.6
   - fix: Client ID is no longer reused across multiple Kafka consumer instances
