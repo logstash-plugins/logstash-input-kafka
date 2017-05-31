@@ -210,6 +210,7 @@ class LogStash::Inputs::Kafka < LogStash::Inputs::Base
   #   `partition`: The partition this message is associated with
   #   `offset`: The offset from the partition this message is associated with
   #   `key`: A ByteBuffer containing the message key
+  #   `timestamp`: The timestamp of this message
   config :decorate_events, :validate => :boolean, :default => false
 
 
@@ -257,6 +258,7 @@ class LogStash::Inputs::Kafka < LogStash::Inputs::Base
                 event.set("[kafka][partition]", record.partition)
                 event.set("[kafka][offset]", record.offset)
                 event.set("[kafka][key]", record.key)
+                event.set("[kafka][timestamp]", record.timestamp)
               end
               logstash_queue << event
             end

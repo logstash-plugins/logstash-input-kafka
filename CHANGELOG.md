@@ -1,3 +1,6 @@
+## 6.3.1
+  - fix: Added record timestamp in event decoration
+
 ## 6.3.0
   - Upgrade Kafka client to version 0.10.2.1
 

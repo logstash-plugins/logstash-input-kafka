@@ -125,6 +125,7 @@ describe "inputs/kafka", :integration => true do
     end
 
     it "should show the right topic and group name in decorated kafka section" do
+      start = LogStash::Timestamp.now.time.to_i
       kafka_input = LogStash::Inputs::Kafka.new(decorate_config)
       queue = Queue.new
       t = thread_it(kafka_input, queue)
@@ -135,6 +136,7 @@ describe "inputs/kafka", :integration => true do
         event = queue.shift
         expect(event.get("kafka")["topic"]).to eq("logstash_topic_plain")
         expect(event.get("kafka")["consumer_group"]).to eq(group_id_3)
+        expect(event.get("kafka")["timestamp"]).to be >= start
       ensure
         t.kill
         t.join(30_000)
