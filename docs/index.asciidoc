@@ -66,7 +66,7 @@ Kafka consumer configuration: http://kafka.apache.org/documentation.html#consume
 [id="plugins-{type}s-{plugin}-options"]
 ==== Kafka Input Configuration Options
 
-This plugin supports the following configuration options plus the <<plugins-{type}s-common-options>> described later.
+This plugin supports the following configuration options plus the <<plugins-{type}s-{plugin}-common-options>> described later.
 
 [cols="<,<,<",options="header",]
 |=======================================================================
@@ -114,7 +114,7 @@ This plugin supports the following configuration options plus the <<plugins-{typ
 | <<plugins-{type}s-{plugin}-value_deserializer_class>> |<<string,string>>|No
 |=======================================================================
 
-Also see <<plugins-{type}s-common-options>> for a list of options supported by all
+Also see <<plugins-{type}s-{plugin}-common-options>> for a list of options supported by all
 input plugins.
 
 &nbsp;
@@ -521,6 +521,5 @@ The topics configuration will be ignored when using this configuration.
 
 Java Class used to deserialize the record's value
 
-
-
+[id="plugins-{type}s-{plugin}-common-options"]
 include::{include_path}/{type}.asciidoc[]
