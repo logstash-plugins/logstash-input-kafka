@@ -16,7 +16,7 @@ Gem::Specification.new do |s|
   s.test_files = s.files.grep(%r{^(test|spec|features)/})
 
   # Special flag to let us know this is actually a logstash plugin
-  s.metadata = { 'logstash_plugin' => 'true', 'group' => 'input'}
+  s.metadata = { 'logstash_plugin' => 'true', 'logstash_group' => 'input'}
 
   s.requirements << "jar 'org.apache.kafka:kafka-clients', '0.10.2.1'"
   s.requirements << "jar 'org.apache.logging.log4j:log4j-slf4j-impl', '2.8.2'"
