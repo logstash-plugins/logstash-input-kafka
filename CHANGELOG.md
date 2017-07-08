@@ -1,3 +1,9 @@
+## 5.1.9
+  - Docs: Fix topic title.
+
+## 5.1.8
+  - Docs: Fix asciidoc problems.
+
 ## 5.1.7
   - Fix NPE when SASL_SSL+PLAIN (no Kerberos) options are specified.
 
