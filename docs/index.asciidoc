@@ -14,7 +14,7 @@ END - GENERATED VARIABLES, DO NOT EDIT!
 
 [id="plugins-{type}s-{plugin}"]
 
-=== Kafka
+=== Kafka input plugin
 
 include::{include_path}/plugin_header.asciidoc[]
 
