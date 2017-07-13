@@ -247,10 +247,11 @@ class LogStash::Inputs::Kafka < LogStash::Inputs::Base
         else
           consumer.subscribe(topics);
         end
+        codec_instance = @codec.clone
         while !stop?
-          records = consumer.poll(poll_timeout_ms);
+          records = consumer.poll(poll_timeout_ms)
           for record in records do
-            @codec.decode(record.value.to_s) do |event|
+            codec_instance.decode(record.value.to_s) do |event|
               decorate(event)
               if @decorate_events
                 event.set("[kafka][topic]", record.topic)
