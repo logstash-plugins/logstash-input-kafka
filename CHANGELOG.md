@@ -1,3 +1,6 @@
+## 6.3.4
+  - Fix an issue that led to random failures in decoding messages when using more than one input thread
+
 ## 6.3.3
   - Upgrade Kafka client to version 0.11.0.0
 
