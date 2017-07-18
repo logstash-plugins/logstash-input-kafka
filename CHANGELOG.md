@@ -1,3 +1,7 @@
+## 7.0.0
+  - Breaking: Nest the decorated fields under `@metadata` field to avoid mapping conflicts with beats.
+    Fixes #198, #180
+
 ## 6.3.4
   - Fix an issue that led to random failures in decoding messages when using more than one input thread
 

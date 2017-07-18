@@ -64,6 +64,19 @@ For more information see http://kafka.apache.org/documentation.html#theconsumer
 
 Kafka consumer configuration: http://kafka.apache.org/documentation.html#consumerconfigs
 
+==== Metadata fields
+
+The following metadata from Kafka broker are added under the `[@metadata]` field:
+
+* `[@metadata][kafka][topic]`: Original Kafka topic from where the message was consumed.
+* `[@metadata][kafka][consumer_group]`: Consumer group
+* `[@metadata][kafka][partition]`: Partition info for this message.
+* `[@metadata][kafka][offset]`: Original record offset for this message.
+* `[@metadata][kafka][key]`: Record key, if any.
+* `[@metadata][kafka][timestamp]`: Timestamp when this message was received by the Kafka broker.
+
+Please note that `@metadata` fields are not part of any of your events at output time. If you need these information to be 
+inserted into your original event, you'll have to use the `mutate` filter to manually copy the required fields into your `event`.
 
 [id="plugins-{type}s-{plugin}-options"]
 ==== Kafka Input Configuration Options
