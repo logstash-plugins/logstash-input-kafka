@@ -134,9 +134,9 @@ describe "inputs/kafka", :integration => true do
         wait(timeout_seconds).for {queue.length}.to eq(num_events)
         expect(queue.length).to eq(num_events)
         event = queue.shift
-        expect(event.get("kafka")["topic"]).to eq("logstash_topic_plain")
-        expect(event.get("kafka")["consumer_group"]).to eq(group_id_3)
-        expect(event.get("kafka")["timestamp"]).to be >= start
+        expect(event.get("[@metadata][kafka][topic]")).to eq("logstash_topic_plain")
+        expect(event.get("[@metadata][kafka][consumer_group]")).to eq(group_id_3)
+        expect(event.get("[@metadata][kafka][timestamp]")).to be >= start
       ensure
         t.kill
         t.join(30_000)

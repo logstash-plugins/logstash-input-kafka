@@ -254,12 +254,12 @@ class LogStash::Inputs::Kafka < LogStash::Inputs::Base
             codec_instance.decode(record.value.to_s) do |event|
               decorate(event)
               if @decorate_events
-                event.set("[kafka][topic]", record.topic)
-                event.set("[kafka][consumer_group]", @group_id)
-                event.set("[kafka][partition]", record.partition)
-                event.set("[kafka][offset]", record.offset)
-                event.set("[kafka][key]", record.key)
-                event.set("[kafka][timestamp]", record.timestamp)
+                event.set("[@metadata][kafka][topic]", record.topic)
+                event.set("[@metadata][kafka][consumer_group]", @group_id)
+                event.set("[@metadata][kafka][partition]", record.partition)
+                event.set("[@metadata][kafka][offset]", record.offset)
+                event.set("[@metadata][kafka][key]", record.key)
+                event.set("[@metadata][kafka][timestamp]", record.timestamp)
               end
               logstash_queue << event
             end
