@@ -470,15 +470,6 @@ The size of the TCP send buffer (SO_SNDBUF) to use when sending data
 The timeout after which, if the `poll_timeout_ms` is not invoked, the consumer is marked dead
 and a rebalance operation is triggered for the group identified by `group_id`
 
-[id="plugins-{type}s-{plugin}-ssl"]
-===== `ssl`  (DEPRECATED)
-
-  * DEPRECATED WARNING: This configuration item is deprecated and may not be available in future versions.
-  * Value type is <<boolean,boolean>>
-  * Default value is `false`
-
-Enable SSL/TLS secured communication to Kafka broker.
-
 [id="plugins-{type}s-{plugin}-ssl_key_password"]
 ===== `ssl_key_password` 
 

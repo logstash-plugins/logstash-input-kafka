@@ -1,3 +1,6 @@
+## 8.0.0
+  - Breaking: mark deprecated `ssl` option as obsolete
+
 ## 7.0.0
   - Breaking: Nest the decorated fields under `@metadata` field to avoid mapping conflicts with beats.
     Fixes #198, #180
