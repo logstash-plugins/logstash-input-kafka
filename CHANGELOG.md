@@ -1,3 +1,6 @@
+## 8.0.1
+  - Fixed an issue that prevented setting a custom `metadata_max_age_ms` value
+
 ## 8.0.0
   - Breaking: mark deprecated `ssl` option as obsolete
 
