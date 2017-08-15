@@ -1,3 +1,6 @@
+## 8.0.2
+  - Fix some documentation issues
+
 ## 8.0.1
   - Fixed an issue that prevented setting a custom `metadata_max_age_ms` value
 
