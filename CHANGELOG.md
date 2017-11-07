@@ -1,3 +1,6 @@
+## 8.0.3
+  - Update gemspec summary
+
 ## 8.0.2
   - Fix some documentation issues
 
