@@ -159,6 +159,9 @@ class LogStash::Inputs::Kafka < LogStash::Inputs::Base
   config :topics_pattern, :validate => :string
   # Time kafka consumer will wait to receive new messages from topics
   config :poll_timeout_ms, :validate => :number, :default => 100
+  # The location of the Confluent schema registry.  This is required if you are using the Confluent
+  # KafkaAvroDeserializer or KafkaAvroSerializer
+  config :schema_registry_url, :validate => :string
   # Enable SSL/TLS secured communication to Kafka broker.
   config :ssl, :validate => :boolean, :obsolete => "Use security_protocol => 'SSL'"
   # The truststore type.
@@ -282,6 +285,7 @@ class LogStash::Inputs::Kafka < LogStash::Inputs::Base
     begin
       props = java.util.Properties.new
       kafka = org.apache.kafka.clients.consumer.ConsumerConfig
+      kafka_avro = io.confluent.kafka.serializers.KafkaAvroDeserializerConfig
 
       props.put(kafka::AUTO_COMMIT_INTERVAL_MS_CONFIG, auto_commit_interval_ms)
       props.put(kafka::AUTO_OFFSET_RESET_CONFIG, auto_offset_reset) unless auto_offset_reset.nil?
@@ -309,6 +313,7 @@ class LogStash::Inputs::Kafka < LogStash::Inputs::Base
       props.put(kafka::SEND_BUFFER_CONFIG, send_buffer_bytes) unless send_buffer_bytes.nil?
       props.put(kafka::SESSION_TIMEOUT_MS_CONFIG, session_timeout_ms) unless session_timeout_ms.nil?
       props.put(kafka::VALUE_DESERIALIZER_CLASS_CONFIG, value_deserializer_class)
+      props.put(kafka_avro::SCHEMA_REGISTRY_URL_CONFIG, schema_registry_url) unless schema_registry_url.nil?
 
       props.put("security.protocol", security_protocol) unless security_protocol.nil?
 
@@ -352,5 +357,9 @@ class LogStash::Inputs::Kafka < LogStash::Inputs::Base
     end
 
     props.put("sasl.kerberos.service.name",sasl_kerberos_service_name) unless sasl_kerberos_service_name.nil?
+  end
+
+  def io
+    Java::Io
   end
 end #class LogStash::Inputs::Kafka

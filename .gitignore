@@ -2,6 +2,9 @@
 Gemfile.lock
 .bundle
 .idea
+lib/com/
+lib/io/
+lib/jline/
 lib/log4j/
 lib/net/
 lib/org/

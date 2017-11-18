@@ -20,6 +20,7 @@ Gem::Specification.new do |s|
 
   s.requirements << "jar 'org.apache.kafka:kafka-clients', '0.11.0.0'"
   s.requirements << "jar 'org.apache.logging.log4j:log4j-slf4j-impl', '2.8.2'"
+  s.requirements << "jar 'io.confluent:kafka-avro-serializer', '3.3.0'"
 
   s.add_development_dependency 'jar-dependencies', '~> 0.3.2'
 
