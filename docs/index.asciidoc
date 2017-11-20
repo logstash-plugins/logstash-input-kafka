@@ -22,7 +22,7 @@ include::{include_path}/plugin_header.asciidoc[]
 
 This input will read events from a Kafka topic.
 
-This plugin uses Kafka Client 0.11.0. For broker compatibility, see the official https://cwiki.apache.org/confluence/display/KAFKA/Compatibility+Matrix[Kafka compatibility reference].
+This plugin uses Kafka Client 1.0.0. For broker compatibility, see the official https://cwiki.apache.org/confluence/display/KAFKA/Compatibility+Matrix[Kafka compatibility reference].
 
 If you're using a plugin version that was released after {version}, see the https://www.elastic.co/guide/en/logstash/master/plugins-inputs-kafka.html[latest plugin documentation] for updated information about Kafka compatibility.
 
