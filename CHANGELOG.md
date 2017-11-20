@@ -1,3 +1,6 @@
+## 8.0.4
+  - Upgrade Kafka client to version 1.0.0
+
 ## 8.0.3
   - Update gemspec summary
 

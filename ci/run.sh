@@ -1,4 +1,4 @@
-export KAFKA_VERSION=0.10.2.1
+export KAFKA_VERSION=1.0.0
 ./kafka_test_setup.sh
 bundle install
 bundle exec rake vendor
