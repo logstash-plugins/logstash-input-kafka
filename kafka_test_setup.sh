@@ -1,6 +1,9 @@
 #!/bin/bash
 # Setup Kafka and create test topics
 
+echo "what is running at the start"
+ps aux
+
 set -ex
 if [ -n "${KAFKA_VERSION+1}" ]; then
   echo "KAFKA_VERSION is $KAFKA_VERSION"
