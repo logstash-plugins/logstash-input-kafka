@@ -11,7 +11,12 @@ task :install_jars do
   # $PWD/vendor
   ENV['JARS_HOME'] = Dir.pwd + "/vendor/jar-dependencies/runtime-jars"
   ENV['JARS_VENDOR'] = "false"
-  Jars::Installer.new.vendor_jars!(false)
+  installer = Jars::Installer.new
+  puts installer.inspect
+  installer.methods.each do |x|
+    puts "#{x}:#{installer.method(x).source_location}"
+  end
+  installer.vendor_jars!(false)
 end
 
 task :vendor => :install_jars
