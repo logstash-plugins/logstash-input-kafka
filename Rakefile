@@ -1,3 +1,5 @@
+gem 'jar-dependencies', '~>0.3.11'
+require 'jar-dependencies'
 require "logstash/devutils/rake"
 
 task :default do
