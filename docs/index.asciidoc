@@ -20,11 +20,11 @@ include::{include_path}/plugin_header.asciidoc[]
 
 ==== Description
 
-This input will read events from a Kafka topic. It uses the the newly designed
-0.9 version of consumer API[https://cwiki.apache.org/confluence/display/KAFKA/Kafka+0.9+Consumer+Rewrite+Design] 
-provided by Kafka to read messages from the broker.
+This input will read events from a Kafka topic. 
 
-NOTE: This consumer is not backward compatible with 0.8.x brokers and needs a 0.9 broker.
+This plugin uses Kafka Client 0.9.0.1. For broker compatibility, see the official https://cwiki.apache.org/confluence/display/KAFKA/Compatibility+Matrix[Kafka compatibility reference].
+
+If you're using a plugin version that was released after {version}, see the https://www.elastic.co/guide/en/logstash/master/plugins-inputs-kafka.html[latest plugin documentation] for updated information about Kafka compatibility. If you require features not yet available in this plugin (including client version upgrades), please file an issue with details about what you need..
 
 The Logstash Kafka consumer handles group management and uses the default offset management
 strategy using Kafka topics.
