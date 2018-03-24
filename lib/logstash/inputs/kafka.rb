@@ -8,18 +8,18 @@ require 'logstash-input-kafka_jars.rb'
 # the consumer API provided by Kafka to read messages from the broker.
 #
 # Here's a compatibility matrix that shows the Kafka client versions that are compatible with each combination
-# of Logstash and the Kafka input plugin:
-#
+# of Logstash and the Kafka input plugin: 
+# 
 # [options="header"]
 # |==========================================================
 # |Kafka Client Version |Logstash Version |Plugin Version |Why?
-# |0.8       |2.0.0 - 2.x.x   |<3.0.0 |Legacy, 0.8 is still popular
-# |0.9       |2.0.0 - 2.3.x   | 3.x.x |Works with the old Ruby Event API (`event['product']['price'] = 10`)
+# |0.8       |2.0.0 - 2.x.x   |<3.0.0 |Legacy, 0.8 is still popular 
+# |0.9       |2.0.0 - 2.3.x   | 3.x.x |Works with the old Ruby Event API (`event['product']['price'] = 10`)  
 # |0.9       |2.4.x - 5.x.x   | 4.x.x |Works with the new getter/setter APIs (`event.set('[product][price]', 10)`)
 # |0.10.0.x  |2.4.x - 5.x.x   | 5.x.x |Not compatible with the <= 0.9 broker
 # |0.10.1.x  |2.4.x - 5.x.x   | 6.x.x |
 # |==========================================================
-#
+# 
 # NOTE: We recommended that you use matching Kafka client and broker versions. During upgrades, you should
 # upgrade brokers before clients because brokers target backwards compatibility. For example, the 0.9 broker
 # is compatible with both the 0.8 consumer and 0.9 consumer APIs, but not the other way around.
@@ -27,7 +27,7 @@ require 'logstash-input-kafka_jars.rb'
 # This input supports connecting to Kafka over:
 #
 # * SSL (requires plugin version 3.0.0 or later)
-# * Kerberos SASL (requires plugin version 5.1.0 or later)
+# * Kerberos SASL (requires plugin version 5.1.0 or later) 
 #
 # By default security is disabled but can be turned on as needed.
 #
@@ -35,7 +35,7 @@ require 'logstash-input-kafka_jars.rb'
 # strategy using Kafka topics.
 #
 # Logstash instances by default form a single logical group to subscribe to Kafka topics
-# Each Logstash Kafka consumer can run multiple threads to increase read throughput. Alternatively,
+# Each Logstash Kafka consumer can run multiple threads to increase read throughput. Alternatively, 
 # you could run multiple Logstash instances with the same `group_id` to spread the load across
 # physical machines. Messages in a topic will be distributed to all Logstash instances with
 # the same `group_id`.
@@ -80,15 +80,15 @@ class LogStash::Inputs::Kafka < LogStash::Inputs::Base
   # Ideally you should have as many threads as the number of partitions for a perfect
   # balance — more threads than partitions means that some threads will be idle
   config :consumer_threads, :validate => :number, :default => 1
-  # If true, periodically commit to Kafka the offsets of messages already returned by the consumer.
+  # If true, periodically commit to Kafka the offsets of messages already returned by the consumer. 
   # This committed offset will be used when the process fails as the position from
   # which the consumption will begin.
   config :enable_auto_commit, :validate => :string, :default => "true"
   # Whether records from internal topics (such as offsets) should be exposed to the consumer.
   # If set to true the only way to receive records from an internal topic is subscribing to it.
   config :exclude_internal_topics, :validate => :string
-  # The maximum amount of data the server should return for a fetch request. This is not an
-  # absolute maximum, if the first message in the first non-empty partition of the fetch is larger
+  # The maximum amount of data the server should return for a fetch request. This is not an 
+  # absolute maximum, if the first message in the first non-empty partition of the fetch is larger 
   # than this value, the message will still be returned to ensure that the consumer can make progress.
   config :fetch_max_bytes, :validate => :string
   # The maximum amount of time the server will block before answering the fetch request if
@@ -103,7 +103,7 @@ class LogStash::Inputs::Kafka < LogStash::Inputs::Base
   # that happens to be made up of multiple processors. Messages in a topic will be distributed to all
   # Logstash instances with the same `group_id`
   config :group_id, :validate => :string, :default => "logstash"
-  # The expected time between heartbeats to the consumer coordinator. Heartbeats are used to ensure
+  # The expected time between heartbeats to the consumer coordinator. Heartbeats are used to ensure 
   # that the consumer's session stays active and to facilitate rebalancing when new
   # consumers join or leave the group. The value must be set lower than
   # `session.timeout.ms`, but typically should be set no higher than 1/3 of that value.
@@ -111,9 +111,9 @@ class LogStash::Inputs::Kafka < LogStash::Inputs::Base
   config :heartbeat_interval_ms, :validate => :string
   # Java Class used to deserialize the record's key
   config :key_deserializer_class, :validate => :string, :default => "org.apache.kafka.common.serialization.StringDeserializer"
-  # The maximum delay between invocations of poll() when using consumer group management. This places
-  # an upper bound on the amount of time that the consumer can be idle before fetching more records.
-  # If poll() is not called before expiration of this timeout, then the consumer is considered failed and
+  # The maximum delay between invocations of poll() when using consumer group management. This places 
+  # an upper bound on the amount of time that the consumer can be idle before fetching more records. 
+  # If poll() is not called before expiration of this timeout, then the consumer is considered failed and 
   # the group will rebalance in order to reassign the partitions to another member.
   # The value of the configuration `request_timeout_ms` must always be larger than max_poll_interval_ms
   config :max_poll_interval_ms, :validate => :string
@@ -154,7 +154,7 @@ class LogStash::Inputs::Kafka < LogStash::Inputs::Base
   config :value_deserializer_class, :validate => :string, :default => "org.apache.kafka.common.serialization.StringDeserializer"
   # A list of topics to subscribe to, defaults to ["logstash"].
   config :topics, :validate => :array, :default => ["logstash"]
-  # A topic regex pattern to subscribe to.
+  # A topic regex pattern to subscribe to. 
   # The topics configuration will be ignored when using this configuration.
   config :topics_pattern, :validate => :string
   # Time kafka consumer will wait to receive new messages from topics
@@ -177,14 +177,14 @@ class LogStash::Inputs::Kafka < LogStash::Inputs::Base
   config :ssl_key_password, :validate => :password
   # Security protocol to use, which can be either of PLAINTEXT,SSL,SASL_PLAINTEXT,SASL_SSL
   config :security_protocol, :validate => ["PLAINTEXT", "SSL", "SASL_PLAINTEXT", "SASL_SSL"], :default => "PLAINTEXT"
-  # http://kafka.apache.org/documentation.html#security_sasl[SASL mechanism] used for client connections.
+  # http://kafka.apache.org/documentation.html#security_sasl[SASL mechanism] used for client connections. 
   # This may be any mechanism for which a security provider is available.
   # GSSAPI is the default mechanism.
   config :sasl_mechanism, :validate => :string, :default => "GSSAPI"
-  # The Kerberos principal name that Kafka broker runs as.
+  # The Kerberos principal name that Kafka broker runs as. 
   # This can be defined either in Kafka's JAAS config or in Kafka's config.
   config :sasl_kerberos_service_name, :validate => :string
-  # The Java Authentication and Authorization Service (JAAS) API supplies user authentication and authorization
+  # The Java Authentication and Authorization Service (JAAS) API supplies user authentication and authorization 
   # services for Kafka. This setting provides the path to the JAAS file. Sample JAAS file for Kafka client:
   # [source,java]
   # ----------------------------------
@@ -196,9 +196,9 @@ class LogStash::Inputs::Kafka < LogStash::Inputs::Base
   #   };
   # ----------------------------------
   #
-  # Please note that specifying `jaas_path` and `kerberos_config` in the config file will add these
-  # to the global JVM system properties. This means if you have multiple Kafka inputs, all of them would be sharing the same
-  # `jaas_path` and `kerberos_config`. If this is not desirable, you would have to run separate instances of Logstash on
+  # Please note that specifying `jaas_path` and `kerberos_config` in the config file will add these  
+  # to the global JVM system properties. This means if you have multiple Kafka inputs, all of them would be sharing the same 
+  # `jaas_path` and `kerberos_config`. If this is not desirable, you would have to run separate instances of Logstash on 
   # different JVM instances.
   config :jaas_path, :validate => :path
   # Optional path to kerberos config file. This is krb5.conf style as detailed in https://web.mit.edu/kerberos/krb5-1.12/doc/admin/conf_files/krb5_conf.html
@@ -332,7 +332,7 @@ class LogStash::Inputs::Kafka < LogStash::Inputs::Base
 
   def set_trustore_keystore_config(props)
     props.put("ssl.truststore.type", ssl_truststore_type) unless ssl_truststore_type.nil?
-    props.put("ssl.truststore.location", ssl_truststore_location) unless ssl_truststore_location.nil?
+    props.put("ssl.truststore.location", ssl_truststore_location)
     props.put("ssl.truststore.password", ssl_truststore_password.value) unless ssl_truststore_password.nil?
 
     # Client auth stuff
