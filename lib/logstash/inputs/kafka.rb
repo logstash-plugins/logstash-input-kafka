@@ -332,7 +332,7 @@ class LogStash::Inputs::Kafka < LogStash::Inputs::Base
 
   def set_trustore_keystore_config(props)
     props.put("ssl.truststore.type", ssl_truststore_type) unless ssl_truststore_type.nil?
-    props.put("ssl.truststore.location", ssl_truststore_location)
+    props.put("ssl.truststore.location", ssl_truststore_location) unless ssl_truststore_location.nil?
     props.put("ssl.truststore.password", ssl_truststore_password.value) unless ssl_truststore_password.nil?
 
     # Client auth stuff
