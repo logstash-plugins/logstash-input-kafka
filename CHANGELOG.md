@@ -1,3 +1,6 @@
+## 8.0.5
+  - Docs: Set the default_codec doc attribute.
+
 ## 8.0.4
   - Upgrade Kafka client to version 1.0.0
 
