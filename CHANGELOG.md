@@ -1,3 +1,6 @@
+## 8.0.6
+  - Fix broken 8.0.5 release
+
 ## 8.0.5
   - Docs: Set the default_codec doc attribute.
 
