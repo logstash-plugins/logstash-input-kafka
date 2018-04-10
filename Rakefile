@@ -1,3 +1,5 @@
+require 'bundler'
+Bundler.require(:development)
 require "logstash/devutils/rake"
 
 task :default do

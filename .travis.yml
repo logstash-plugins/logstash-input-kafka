@@ -1,7 +1,8 @@
 ---
 sudo: false
 language: ruby
-cache: bundler
+before_install:
+- gem install jar-dependencies
 matrix:
   include:
   - rvm: jruby-9.1.13.0

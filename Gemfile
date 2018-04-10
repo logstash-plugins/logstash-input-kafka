@@ -1,8 +1,12 @@
 source 'https://rubygems.org'
 
+# This will ensure that the jar-dependencies gem is installed by bundler
+gem "jar-dependencies", "~> 0.3.2"
+
 gemspec
 
 logstash_path = ENV["LOGSTASH_PATH"] || "../../logstash"
+
 use_logstash_source = ENV["LOGSTASH_SOURCE"] && ENV["LOGSTASH_SOURCE"].to_s == "1"
 
 if Dir.exist?(logstash_path) && use_logstash_source
