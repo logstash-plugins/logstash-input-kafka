@@ -327,7 +327,7 @@ class LogStash::Inputs::Kafka < LogStash::Inputs::Base
       logger.error("Unable to create Kafka consumer from given configuration",
                    :kafka_error_message => e,
                    :cause => e.respond_to?(:getCause) ? e.getCause() : nil)
-      throw e
+      raise e
     end
   end
 
