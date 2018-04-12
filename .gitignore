@@ -1,6 +1,7 @@
 *.gem
 Gemfile.lock
 .bundle
+.gradle
 .idea
 lib/log4j/
 lib/net/
