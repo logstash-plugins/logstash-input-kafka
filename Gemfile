@@ -2,6 +2,8 @@ source 'https://rubygems.org'
 
 gemspec
 
+#gem "jar-dependencies", "~> 0.3", :group => :development
+
 logstash_path = ENV["LOGSTASH_PATH"] || "../../logstash"
 use_logstash_source = ENV["LOGSTASH_SOURCE"] && ENV["LOGSTASH_SOURCE"].to_s == "1"
 
