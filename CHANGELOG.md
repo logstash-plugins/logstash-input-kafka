@@ -1,3 +1,6 @@
+## 8.0.7
+  - Internal: Update build to gradle
+
 ## 8.0.6
   - Fix broken 8.0.5 release
 
