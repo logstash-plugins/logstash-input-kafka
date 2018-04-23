@@ -250,6 +250,7 @@ class LogStash::Inputs::Kafka < LogStash::Inputs::Base
         codec_instance = @codec.clone
         while !stop?
           records = consumer.poll(poll_timeout_ms)
+          next unless records.count > 0
           for record in records do
             codec_instance.decode(record.value.to_s) do |event|
               decorate(event)
