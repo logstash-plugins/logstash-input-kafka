@@ -1,5 +1,6 @@
 
 # encoding: utf-8
+require "logstash/devutils/rake"
 require "jars/installer"
 require "fileutils"
 
