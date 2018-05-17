@@ -324,7 +324,7 @@ Java Class used to deserialize the record's key
   * There is no default value for this setting.
 
 The maximum amount of data per-partition the server will return. The maximum total memory used for a
-request will be <code>#partitions * max.partition.fetch.bytes</code>. This size must be at least
+request will be `#partitions * max.partition.fetch.bytes`. This size must be at least
 as large as the maximum message size the server allows or else it is possible for the producer to
 send messages larger than the consumer can fetch. If that happens, the consumer can get stuck trying
 to fetch a large message on a certain partition.
