@@ -1,5 +1,6 @@
 ## 8.0.7
   - Internal: Update build to gradle
+  - Upgrade Kafka client to version 1.1.0
 
 ## 8.0.6
   - Fix broken 8.0.5 release
