@@ -228,7 +228,8 @@ class LogStash::Inputs::Kafka < LogStash::Inputs::Base
 
   public
   def stop
-    @runner_consumers.each { |c| c.wakeup }
+    # if we have consumers, wake them up to unblock our runner threads
+    @runner_consumers && @runner_consumers.each(&:wakeup)
   end
 
   public
