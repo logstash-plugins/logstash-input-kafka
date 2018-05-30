@@ -1,3 +1,6 @@
+## 8.1.1
+ - Fix race-condition where shutting down a Kafka Input before it has finished starting could cause Logstash to crash
+
 ## 8.1.0
   - Internal: Update build to gradle
   - Upgrade Kafka client to version 1.1.0
