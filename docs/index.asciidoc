@@ -59,7 +59,7 @@ The following metadata from Kafka broker are added under the `[@metadata]` field
 * `[@metadata][kafka][partition]`: Partition info for this message.
 * `[@metadata][kafka][offset]`: Original record offset for this message.
 * `[@metadata][kafka][key]`: Record key, if any.
-* `[@metadata][kafka][timestamp]`: Timestamp when this message was received by the Kafka broker.
+* `[@metadata][kafka][timestamp]`: Timestamp in the Record. Depending on your broker configuration, this can be either when the record was created (default) or when it was received by the broker. See more about property log.message.timestamp.type at https://kafka.apache.org/10/documentation.html#brokerconfigs
 
 Please note that `@metadata` fields are not part of any of your events at output time. If you need these information to be 
 inserted into your original event, you'll have to use the `mutate` filter to manually copy the required fields into your `event`.
