@@ -1,3 +1,7 @@
+## 8.1.2
+ - Docs: Correct list formatting for `decorate_events`
+ - Docs: Add kafka default to `partition_assignment_strategy`
+
 ## 8.1.1
  - Fix race-condition where shutting down a Kafka Input before it has finished starting could cause Logstash to crash
 
