@@ -67,7 +67,10 @@ inserted into your original event, you'll have to use the `mutate` filter to man
 [id="plugins-{type}s-{plugin}-options"]
 ==== Kafka Input Configuration Options
 
-This plugin supports the following configuration options plus the <<plugins-{type}s-{plugin}-common-options>> described later.
+This plugin supports these configuration options plus the <<plugins-{type}s-{plugin}-common-options>> described later.
+
+NOTE: Some of these options map to a Kafka option. See the
+https://kafka.apache.org/documentation for more details.
 
 [cols="<,<,<",options="header",]
 |=======================================================================
@@ -200,11 +203,12 @@ balance — more threads than partitions means that some threads will be idl
 
 Option to add Kafka metadata like topic, message size to the event.
 This will add a field named `kafka` to the logstash event containing the following attributes:
-  `topic`: The topic this message is associated with
-  `consumer_group`: The consumer group used to read in this event
-  `partition`: The partition this message is associated with
-  `offset`: The offset from the partition this message is associated with
-  `key`: A ByteBuffer containing the message key
+
+* `topic`: The topic this message is associated with
+* `consumer_group`: The consumer group used to read in this event
+* `partition`: The partition this message is associated with
+* `offset`: The offset from the partition this message is associated with
+* `key`: A ByteBuffer containing the message key
 
 [id="plugins-{type}s-{plugin}-enable_auto_commit"]
 ===== `enable_auto_commit` 
@@ -363,8 +367,10 @@ we haven't seen any partition leadership changes to proactively discover any new
   * Value type is <<string,string>>
   * There is no default value for this setting.
 
-The class name of the partition assignment strategy that the client will use to distribute
-partition ownership amongst consumer instances
+The class name of the partition assignment strategy that the client uses to
+distribute partition ownership amongst consumer instances. Maps to
+the Kafka `partition.assignment.strategy` setting, which defaults to
+`org.apache.kafka.clients.consumer.RangeAssignor`.
 
 [id="plugins-{type}s-{plugin}-poll_timeout_ms"]
 ===== `poll_timeout_ms` 
