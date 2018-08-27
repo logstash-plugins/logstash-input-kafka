@@ -16,5 +16,5 @@ matrix:
 install: true
 before_script: ci/build.sh
 script: ci/run.sh
-script: ci/cleanup.sh
+after_script: ci/cleanup.sh
 jdk: oraclejdk8
