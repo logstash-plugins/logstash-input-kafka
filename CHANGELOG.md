@@ -1,3 +1,6 @@
+## 8.2.0
+  - Upgrade Kafka client to version 2.0.0
+
 ## 8.1.2
  - Docs: Correct list formatting for `decorate_events`
  - Docs: Add kafka default to `partition_assignment_strategy`
