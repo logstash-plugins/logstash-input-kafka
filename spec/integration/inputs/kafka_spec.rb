@@ -82,7 +82,7 @@ describe "inputs/kafka", :integration => true do
         wait(timeout_seconds).for {queue.length}.to eq(num_events)
         expect(queue.length).to eq(num_events)
         kafka_input.kafka_consumers.each_with_index do |consumer, i|
-          expect(consumer.metrics.keys.first.tags["client-id"]).to eq("spec-#{i}")
+          expect(consumer.metrics.keys.first.tags["client-id"]).to eq("spec")
         end
       ensure
         t.kill
