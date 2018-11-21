@@ -1,3 +1,6 @@
+## 8.2.1
+  - Changed Kafka client version to 2.0.1 [#295](https://github.com/logstash-plugins/logstash-input-kafka/pull/295)
+
 ## 8.2.0
   - Upgrade Kafka client to version 2.0.0
 
