@@ -23,7 +23,7 @@ include::{include_path}/plugin_header.asciidoc[]
 
 This input will read events from a Kafka topic.
 
-This plugin uses Kafka Client 2.0.0. For broker compatibility, see the official https://cwiki.apache.org/confluence/display/KAFKA/Compatibility+Matrix[Kafka compatibility reference]. If the linked compatibility wiki is not up-to-date, please contact Kafka support/community to confirm compatibility.
+This plugin uses Kafka Client 2.1.0. For broker compatibility, see the official https://cwiki.apache.org/confluence/display/KAFKA/Compatibility+Matrix[Kafka compatibility reference]. If the linked compatibility wiki is not up-to-date, please contact Kafka support/community to confirm compatibility.
 
 If you require features not yet available in this plugin (including client version upgrades), please file an issue with details about what you need.
 
