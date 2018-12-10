@@ -1,4 +1,4 @@
-## 8.2.2
+## 8.3.0
   - Changed Kafka client version to 2.1.0
 
 ## 8.2.1
