@@ -175,6 +175,8 @@ class LogStash::Inputs::Kafka < LogStash::Inputs::Base
   config :ssl_keystore_password, :validate => :password
   # The password of the private key in the key store file.
   config :ssl_key_password, :validate => :password
+  # Algorithm to use when verifying host. Set to "" to disable
+  config :ssl_endpoint_identification_algorithm, :validate => :string
   # Security protocol to use, which can be either of PLAINTEXT,SSL,SASL_PLAINTEXT,SASL_SSL
   config :security_protocol, :validate => ["PLAINTEXT", "SSL", "SASL_PLAINTEXT", "SASL_SSL"], :default => "PLAINTEXT"
   # http://kafka.apache.org/documentation.html#security_sasl[SASL mechanism] used for client connections. 
@@ -342,6 +344,7 @@ class LogStash::Inputs::Kafka < LogStash::Inputs::Base
     props.put("ssl.key.password", ssl_key_password.value) unless ssl_key_password.nil?
     props.put("ssl.keystore.location", ssl_keystore_location) unless ssl_keystore_location.nil?
     props.put("ssl.keystore.password", ssl_keystore_password.value) unless ssl_keystore_password.nil?
+    props.put("ssl.endpoint.identification.algorithm", ssl_endpoint_identification_algorithm.value) unless ssl_endpoint_identification_algorithm.nil?
   end
 
   def set_sasl_config(props)
