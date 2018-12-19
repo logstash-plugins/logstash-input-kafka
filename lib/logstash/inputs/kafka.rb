@@ -344,7 +344,7 @@ class LogStash::Inputs::Kafka < LogStash::Inputs::Base
     props.put("ssl.key.password", ssl_key_password.value) unless ssl_key_password.nil?
     props.put("ssl.keystore.location", ssl_keystore_location) unless ssl_keystore_location.nil?
     props.put("ssl.keystore.password", ssl_keystore_password.value) unless ssl_keystore_password.nil?
-    props.put("ssl.endpoint.identification.algorithm", ssl_endpoint_identification_algorithm.value) unless ssl_endpoint_identification_algorithm.nil?
+    props.put("ssl.endpoint.identification.algorithm", ssl_endpoint_identification_algorithm) unless ssl_endpoint_identification_algorithm.nil?
   end
 
   def set_sasl_config(props)
