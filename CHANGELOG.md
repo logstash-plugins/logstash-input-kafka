@@ -1,5 +1,8 @@
+## 9.0.0
+  - Removed obsolete `ssl` option
+
 ## 8.3.1
- - Added support for kafka property ssl.endpoint.identification.algorithm #302(https://github.com/logstash-plugins/logstash-input-kafka/pull/302)
+  - Added support for kafka property ssl.endpoint.identification.algorithm #302(https://github.com/logstash-plugins/logstash-input-kafka/pull/302)
 
 ## 8.3.0
   - Changed Kafka client version to 2.1.0
