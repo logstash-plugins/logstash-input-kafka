@@ -159,8 +159,6 @@ class LogStash::Inputs::Kafka < LogStash::Inputs::Base
   config :topics_pattern, :validate => :string
   # Time kafka consumer will wait to receive new messages from topics
   config :poll_timeout_ms, :validate => :number, :default => 100
-  # Enable SSL/TLS secured communication to Kafka broker.
-  config :ssl, :validate => :boolean, :obsolete => "Use security_protocol => 'SSL'"
   # The truststore type.
   config :ssl_truststore_type, :validate => :string
   # The JKS truststore path to validate the Kafka broker's certificate.
