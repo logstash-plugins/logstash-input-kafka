@@ -30,7 +30,8 @@ class MockConsumer
 end
 
 describe LogStash::Inputs::Kafka do
-  let(:config) { { 'topics' => ['logstash'], 'consumer_threads' => 4 } }
+  let(:pipeline_id) { SecureRandom.hex(8)}
+  let(:config) { { 'topics' => ['logstash'], 'consumer_threads' => 4, 'pipeline_id' => pipeline_id } }
   subject { LogStash::Inputs::Kafka.new(config) }
 
   it "should register" do
