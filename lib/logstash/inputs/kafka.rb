@@ -132,7 +132,9 @@ class LogStash::Inputs::Kafka < LogStash::Inputs::Base
   # partition ownership amongst consumer instances
   config :partition_assignment_strategy, :validate => :string
   # ID of the pipeline whose events you want to read from.
-  config :pipeline_id, :validate => :string, :default => "main"
+  def pipeline_id
+    respond_to?(:execution_context) ? execution_context.pipeline_id : "main"
+  end
   # The size of the TCP receive buffer (SO_RCVBUF) to use when reading data.
   config :receive_buffer_bytes, :validate => :string
   # The amount of time to wait before attempting to reconnect to a given host.
