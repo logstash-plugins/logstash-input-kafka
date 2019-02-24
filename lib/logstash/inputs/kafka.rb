@@ -133,10 +133,15 @@ class LogStash::Inputs::Kafka < LogStash::Inputs::Base
   config :partition_assignment_strategy, :validate => :string
   # The size of the TCP receive buffer (SO_RCVBUF) to use when reading data.
   config :receive_buffer_bytes, :validate => :string
-  # The amount of time to wait before attempting to reconnect to a given host.
+  # The base amount of time to wait before attempting to reconnect to a given host.
   # This avoids repeatedly connecting to a host in a tight loop.
-  # This backoff applies to all requests sent by the consumer to the broker.
-  config :reconnect_backoff_ms, :validate => :string
+  # This backoff applies to all connection attempts by the client to a broker.
+  config :reconnect_backoff_ms, :validate => :number
+  # The maximum amount of time to wait when reconnecting to a broker that has repeatedly failed to connect.
+  # If provided, the backoff per host will increase exponentially for each consecutive connection failure,
+  # up to this maximum.
+  # After calculating the backoff increase, 20% random jitter is added to avoid connection storms.
+  config :reconnect_backoff_max_ms, :validate => :number
   # The configuration controls the maximum amount of time the client will wait
   # for the response of a request. If the response is not received before the timeout
   # elapses the client will resend the request if necessary or fail the request if
@@ -306,6 +311,7 @@ class LogStash::Inputs::Kafka < LogStash::Inputs::Base
       props.put(kafka::PARTITION_ASSIGNMENT_STRATEGY_CONFIG, partition_assignment_strategy) unless partition_assignment_strategy.nil?
       props.put(kafka::RECEIVE_BUFFER_CONFIG, receive_buffer_bytes) unless receive_buffer_bytes.nil?
       props.put(kafka::RECONNECT_BACKOFF_MS_CONFIG, reconnect_backoff_ms) unless reconnect_backoff_ms.nil?
+      props.put(kafka::RECONNECT_BACKOFF_MAX_MS_CONFIG, reconnect_backoff_max_ms) unless reconnect_backoff_max_ms.nil?
       props.put(kafka::REQUEST_TIMEOUT_MS_CONFIG, request_timeout_ms) unless request_timeout_ms.nil?
       props.put(kafka::RETRY_BACKOFF_MS_CONFIG, retry_backoff_ms) unless retry_backoff_ms.nil?
       props.put(kafka::SEND_BUFFER_CONFIG, send_buffer_bytes) unless send_buffer_bytes.nil?
