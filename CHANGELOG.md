@@ -1,3 +1,6 @@
+## 9.0.1
+  - Changed Kafka client version to 2.1.1 [#307](https://github.com/logstash-plugins/logstash-input-kafka/pull/307)
+
 ## 9.0.0
   - Removed obsolete `ssl` option
 
