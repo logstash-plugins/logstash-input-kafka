@@ -1,3 +1,11 @@
+## 10.0.0
+  - Changed expected datatype of various options to number:
+    `auto_commit_interval_ms`, `connections_max_idle_ms`, `fetch_max_bytes`, `fetch_max_wait_ms`, 
+    `fetch_min_bytes`, `heartbeat_interval_ms`, `max_partition_fetch_bytes`, `max_poll_interval_ms`, 
+    `max_poll_records`, `metadata_max_age_ms`, `receive_buffer_bytes`, `reconnect_backoff_ms`, 
+    `request_timeout_ms`, `retry_backoff_ms`, `send_buffer_bytes`, `session_timeout_ms`
+    [#309](https://github.com/logstash-plugins/logstash-input-kafka/pull/309)
+
 ## 9.0.0
   - Removed obsolete `ssl` option
 
