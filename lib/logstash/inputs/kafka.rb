@@ -131,10 +131,6 @@ class LogStash::Inputs::Kafka < LogStash::Inputs::Base
   # The class name of the partition assignment strategy that the client will use to distribute
   # partition ownership amongst consumer instances
   config :partition_assignment_strategy, :validate => :string
-  # ID of the pipeline whose events you want to read from.
-  def pipeline_id
-    respond_to?(:execution_context) ? execution_context.pipeline_id : "main"
-  end
   # The size of the TCP receive buffer (SO_RCVBUF) to use when reading data.
   config :receive_buffer_bytes, :validate => :string
   # The amount of time to wait before attempting to reconnect to a given host.
@@ -360,4 +356,10 @@ class LogStash::Inputs::Kafka < LogStash::Inputs::Base
 
     props.put("sasl.kerberos.service.name",sasl_kerberos_service_name) unless sasl_kerberos_service_name.nil?
   end
+
+  # ID of the pipeline whose events you want to read from.
+  def pipeline_id
+    respond_to?(:execution_context) ? execution_context.pipeline_id : "main"
+  end
+
 end #class LogStash::Inputs::Kafka
