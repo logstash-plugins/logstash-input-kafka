@@ -201,6 +201,8 @@ class LogStash::Inputs::Kafka < LogStash::Inputs::Base
   # `jaas_path` and `kerberos_config`. If this is not desirable, you would have to run separate instances of Logstash on 
   # different JVM instances.
   config :jaas_path, :validate => :path
+  # JAAS configuration settings. This allows JAAS config to be a part of the plugin configuration and allows for different JAAS configuration per each plugin config.
+  config :sasl_jaas_config, :validate => :string
   # Optional path to kerberos config file. This is krb5.conf style as detailed in https://web.mit.edu/kerberos/krb5-1.12/doc/admin/conf_files/krb5_conf.html
   config :kerberos_config, :validate => :path
   # Option to add Kafka metadata like topic, message size to the event.
@@ -355,5 +357,6 @@ class LogStash::Inputs::Kafka < LogStash::Inputs::Base
     end
 
     props.put("sasl.kerberos.service.name",sasl_kerberos_service_name) unless sasl_kerberos_service_name.nil?
+    props.put("sasl.jaas.config", sasl_jaas_config) unless sasl_jaas_config.nil?
   end
 end #class LogStash::Inputs::Kafka
