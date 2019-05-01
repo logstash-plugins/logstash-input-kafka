@@ -19,5 +19,5 @@ install: true
 before_script: ci/build.sh
 script: ci/run.sh
 after_script: ci/cleanup.sh
-jdk: oraclejdk8
+jdk: openjdk8
 before_install: gem install bundler -v '< 2'
