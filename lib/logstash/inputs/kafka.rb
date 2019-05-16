@@ -53,7 +53,7 @@ class LogStash::Inputs::Kafka < LogStash::Inputs::Base
   default :codec, 'plain'
 
   # The frequency in milliseconds that the consumer offsets are committed to Kafka.
-  config :auto_commit_interval_ms, :validate => :string, :default => "5000"
+  config :auto_commit_interval_ms, :validate => :number, :default => 5000
   # What to do when there is no initial offset in Kafka or if an offset is out of range:
   #
   # * earliest: automatically reset the offset to the earliest offset
@@ -76,7 +76,7 @@ class LogStash::Inputs::Kafka < LogStash::Inputs::Base
   # a logical application name to be included.
   config :client_id, :validate => :string, :default => "logstash"
   # Close idle connections after the number of milliseconds specified by this config.
-  config :connections_max_idle_ms, :validate => :string
+  config :connections_max_idle_ms, :validate => :number
   # Ideally you should have as many threads as the number of partitions for a perfect
   # balance — more threads than partitions means that some threads will be idle
   config :consumer_threads, :validate => :number, :default => 1
@@ -90,15 +90,15 @@ class LogStash::Inputs::Kafka < LogStash::Inputs::Base
   # The maximum amount of data the server should return for a fetch request. This is not an 
   # absolute maximum, if the first message in the first non-empty partition of the fetch is larger 
   # than this value, the message will still be returned to ensure that the consumer can make progress.
-  config :fetch_max_bytes, :validate => :string
+  config :fetch_max_bytes, :validate => :number
   # The maximum amount of time the server will block before answering the fetch request if
   # there isn't sufficient data to immediately satisfy `fetch_min_bytes`. This
   # should be less than or equal to the timeout used in `poll_timeout_ms`
-  config :fetch_max_wait_ms, :validate => :string
+  config :fetch_max_wait_ms, :validate => :number
   # The minimum amount of data the server should return for a fetch request. If insufficient
   # data is available the request will wait for that much data to accumulate
   # before answering the request.
-  config :fetch_min_bytes, :validate => :string
+  config :fetch_min_bytes, :validate => :number
   # The identifier of the group this consumer belongs to. Consumer group is a single logical subscriber
   # that happens to be made up of multiple processors. Messages in a topic will be distributed to all
   # Logstash instances with the same `group_id`
@@ -108,7 +108,7 @@ class LogStash::Inputs::Kafka < LogStash::Inputs::Base
   # consumers join or leave the group. The value must be set lower than
   # `session.timeout.ms`, but typically should be set no higher than 1/3 of that value.
   # It can be adjusted even lower to control the expected time for normal rebalances.
-  config :heartbeat_interval_ms, :validate => :string
+  config :heartbeat_interval_ms, :validate => :number
   # Java Class used to deserialize the record's key
   config :key_deserializer_class, :validate => :string, :default => "org.apache.kafka.common.serialization.StringDeserializer"
   # The maximum delay between invocations of poll() when using consumer group management. This places 
@@ -116,40 +116,40 @@ class LogStash::Inputs::Kafka < LogStash::Inputs::Base
   # If poll() is not called before expiration of this timeout, then the consumer is considered failed and 
   # the group will rebalance in order to reassign the partitions to another member.
   # The value of the configuration `request_timeout_ms` must always be larger than max_poll_interval_ms
-  config :max_poll_interval_ms, :validate => :string
+  config :max_poll_interval_ms, :validate => :number
   # The maximum amount of data per-partition the server will return. The maximum total memory used for a
   # request will be <code>#partitions * max.partition.fetch.bytes</code>. This size must be at least
   # as large as the maximum message size the server allows or else it is possible for the producer to
   # send messages larger than the consumer can fetch. If that happens, the consumer can get stuck trying
   # to fetch a large message on a certain partition.
-  config :max_partition_fetch_bytes, :validate => :string
+  config :max_partition_fetch_bytes, :validate => :number
   # The maximum number of records returned in a single call to poll().
-  config :max_poll_records, :validate => :string
+  config :max_poll_records, :validate => :number
   # The period of time in milliseconds after which we force a refresh of metadata even if
   # we haven't seen any partition leadership changes to proactively discover any new brokers or partitions
-  config :metadata_max_age_ms, :validate => :string
+  config :metadata_max_age_ms, :validate => :number
   # The class name of the partition assignment strategy that the client will use to distribute
   # partition ownership amongst consumer instances
   config :partition_assignment_strategy, :validate => :string
   # The size of the TCP receive buffer (SO_RCVBUF) to use when reading data.
-  config :receive_buffer_bytes, :validate => :string
+  config :receive_buffer_bytes, :validate => :number
   # The amount of time to wait before attempting to reconnect to a given host.
   # This avoids repeatedly connecting to a host in a tight loop.
   # This backoff applies to all requests sent by the consumer to the broker.
-  config :reconnect_backoff_ms, :validate => :string
+  config :reconnect_backoff_ms, :validate => :number
   # The configuration controls the maximum amount of time the client will wait
   # for the response of a request. If the response is not received before the timeout
   # elapses the client will resend the request if necessary or fail the request if
   # retries are exhausted.
-  config :request_timeout_ms, :validate => :string
+  config :request_timeout_ms, :validate => :number
   # The amount of time to wait before attempting to retry a failed fetch request
   # to a given topic partition. This avoids repeated fetching-and-failing in a tight loop.
-  config :retry_backoff_ms, :validate => :string
+  config :retry_backoff_ms, :validate => :number
   # The size of the TCP send buffer (SO_SNDBUF) to use when sending data
-  config :send_buffer_bytes, :validate => :string
+  config :send_buffer_bytes, :validate => :number
   # The timeout after which, if the `poll_timeout_ms` is not invoked, the consumer is marked dead
   # and a rebalance operation is triggered for the group identified by `group_id`
-  config :session_timeout_ms, :validate => :string
+  config :session_timeout_ms, :validate => :number
   # Java Class used to deserialize the record's value
   config :value_deserializer_class, :validate => :string, :default => "org.apache.kafka.common.serialization.StringDeserializer"
   # A list of topics to subscribe to, defaults to ["logstash"].
@@ -285,7 +285,7 @@ class LogStash::Inputs::Kafka < LogStash::Inputs::Base
       props = java.util.Properties.new
       kafka = org.apache.kafka.clients.consumer.ConsumerConfig
 
-      props.put(kafka::AUTO_COMMIT_INTERVAL_MS_CONFIG, auto_commit_interval_ms)
+      props.put(kafka::AUTO_COMMIT_INTERVAL_MS_CONFIG, auto_commit_interval_ms.to_s)
       props.put(kafka::AUTO_OFFSET_RESET_CONFIG, auto_offset_reset) unless auto_offset_reset.nil?
       props.put(kafka::BOOTSTRAP_SERVERS_CONFIG, bootstrap_servers)
       props.put(kafka::CHECK_CRCS_CONFIG, check_crcs) unless check_crcs.nil?
@@ -293,23 +293,23 @@ class LogStash::Inputs::Kafka < LogStash::Inputs::Base
       props.put(kafka::CONNECTIONS_MAX_IDLE_MS_CONFIG, connections_max_idle_ms) unless connections_max_idle_ms.nil?
       props.put(kafka::ENABLE_AUTO_COMMIT_CONFIG, enable_auto_commit)
       props.put(kafka::EXCLUDE_INTERNAL_TOPICS_CONFIG, exclude_internal_topics) unless exclude_internal_topics.nil?
-      props.put(kafka::FETCH_MAX_BYTES_CONFIG, fetch_max_bytes) unless fetch_max_bytes.nil?
-      props.put(kafka::FETCH_MAX_WAIT_MS_CONFIG, fetch_max_wait_ms) unless fetch_max_wait_ms.nil?
-      props.put(kafka::FETCH_MIN_BYTES_CONFIG, fetch_min_bytes) unless fetch_min_bytes.nil?
+      props.put(kafka::FETCH_MAX_BYTES_CONFIG, fetch_max_bytes.to_s) unless fetch_max_bytes.nil?
+      props.put(kafka::FETCH_MAX_WAIT_MS_CONFIG, fetch_max_wait_ms.to_s) unless fetch_max_wait_ms.nil?
+      props.put(kafka::FETCH_MIN_BYTES_CONFIG, fetch_min_bytes.to_s) unless fetch_min_bytes.nil?
       props.put(kafka::GROUP_ID_CONFIG, group_id)
-      props.put(kafka::HEARTBEAT_INTERVAL_MS_CONFIG, heartbeat_interval_ms) unless heartbeat_interval_ms.nil?
+      props.put(kafka::HEARTBEAT_INTERVAL_MS_CONFIG, heartbeat_interval_ms.to_s) unless heartbeat_interval_ms.nil?
       props.put(kafka::KEY_DESERIALIZER_CLASS_CONFIG, key_deserializer_class)
-      props.put(kafka::MAX_PARTITION_FETCH_BYTES_CONFIG, max_partition_fetch_bytes) unless max_partition_fetch_bytes.nil?
-      props.put(kafka::MAX_POLL_RECORDS_CONFIG, max_poll_records) unless max_poll_records.nil?
-      props.put(kafka::MAX_POLL_INTERVAL_MS_CONFIG, max_poll_interval_ms) unless max_poll_interval_ms.nil?
+      props.put(kafka::MAX_PARTITION_FETCH_BYTES_CONFIG, max_partition_fetch_bytes.to_s) unless max_partition_fetch_bytes.nil?
+      props.put(kafka::MAX_POLL_RECORDS_CONFIG, max_poll_records.to_s) unless max_poll_records.nil?
+      props.put(kafka::MAX_POLL_INTERVAL_MS_CONFIG, max_poll_interval_ms.to_s) unless max_poll_interval_ms.nil?
       props.put(kafka::METADATA_MAX_AGE_CONFIG, metadata_max_age_ms) unless metadata_max_age_ms.nil?
       props.put(kafka::PARTITION_ASSIGNMENT_STRATEGY_CONFIG, partition_assignment_strategy) unless partition_assignment_strategy.nil?
-      props.put(kafka::RECEIVE_BUFFER_CONFIG, receive_buffer_bytes) unless receive_buffer_bytes.nil?
+      props.put(kafka::RECEIVE_BUFFER_CONFIG, receive_buffer_bytes.to_s) unless receive_buffer_bytes.nil?
       props.put(kafka::RECONNECT_BACKOFF_MS_CONFIG, reconnect_backoff_ms) unless reconnect_backoff_ms.nil?
-      props.put(kafka::REQUEST_TIMEOUT_MS_CONFIG, request_timeout_ms) unless request_timeout_ms.nil?
+      props.put(kafka::REQUEST_TIMEOUT_MS_CONFIG, request_timeout_ms.to_s) unless request_timeout_ms.nil?
       props.put(kafka::RETRY_BACKOFF_MS_CONFIG, retry_backoff_ms) unless retry_backoff_ms.nil?
-      props.put(kafka::SEND_BUFFER_CONFIG, send_buffer_bytes) unless send_buffer_bytes.nil?
-      props.put(kafka::SESSION_TIMEOUT_MS_CONFIG, session_timeout_ms) unless session_timeout_ms.nil?
+      props.put(kafka::SEND_BUFFER_CONFIG, send_buffer_bytes.to_s) unless send_buffer_bytes.nil?
+      props.put(kafka::SESSION_TIMEOUT_MS_CONFIG, session_timeout_ms.to_s) unless session_timeout_ms.nil?
       props.put(kafka::VALUE_DESERIALIZER_CLASS_CONFIG, value_deserializer_class)
 
       props.put("security.protocol", security_protocol) unless security_protocol.nil?
