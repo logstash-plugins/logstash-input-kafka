@@ -1,3 +1,6 @@
+## 9.0.1
+  - Added support for `sasl_jaas_config` setting to allow JAAS config per plugin, rather than per JVM [#313](https://github.com/logstash-plugins/logstash-input-kafka/pull/313)
+
 ## 9.0.0
   - Removed obsolete `ssl` option
 
