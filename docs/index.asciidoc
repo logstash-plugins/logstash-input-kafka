@@ -220,10 +220,10 @@ This will add a field named `kafka` to the logstash event containing the followi
   * Value type is <<string,string>>
   * Default value is `"true"`
 
-If true, periodically commit to Kafka the offsets of messages already returned by the consumer. 
-This committed offset will be used when the process fails as the position from
-which the consumption will begin. If the value is `false` however, the offset is committed every time
-the consumer fetches the data from the topic.
+If true, periodically commit to Kafka the offsets of messages already returned by the consumer.
+If value is `false` however, the offset is committed every time the consumer fetches the data from
+the topic. This committed offset will be used when the process fails as the position from
+which the consumption will begin.
 
 [id="plugins-{type}s-{plugin}-exclude_internal_topics"]
 ===== `exclude_internal_topics` 
