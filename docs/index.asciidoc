@@ -2,6 +2,18 @@
 :type: input
 :default_codec: plain
 
+
+/////////////////////////////////////////////
+// Kafka Input Plugin Source Has Moved  //
+// --------------------------------------- //
+// The Kafka Input Plugin is now a part //
+// of the Kafka Integration.            //
+//                                         //
+// This stand-alone plugin project remains //
+// open for backports to the 9.x series.   //
+/////////////////////////////////////////////
+
+
 ///////////////////////////////////////////
 START - GENERATED VARIABLES, DO NOT EDIT!
 ///////////////////////////////////////////
@@ -12,6 +24,7 @@ START - GENERATED VARIABLES, DO NOT EDIT!
 ///////////////////////////////////////////
 END - GENERATED VARIABLES, DO NOT EDIT!
 ///////////////////////////////////////////
+
 
 [id="plugins-{type}s-{plugin}"]
 

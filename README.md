@@ -6,6 +6,14 @@ This is a plugin for [Logstash](https://github.com/elastic/logstash).
 
 It is fully free and fully open source. The license is Apache 2.0, meaning you are pretty much free to use it however you want in whatever way.
 
+## Kafka Input Plugin Has Moved
+
+This Kafka Input Plugin is now a part of the [Kafka Integration Plugin][integration-source]. This project remains open for backports of fixes from that project to the 9.x series where possible, but issues should first be filed on the [integration plugin][integration-issues].
+
+[integration-source]: https://github.com/logstash-plugins/logstash-integration-kafka
+[integration-issues]: https://github.com/logstash-plugins/logstash-integration-kafka/issues/
+
+
 ## Logging
 
 Kafka logs do not respect the Log4J2 root logger level and defaults to INFO, for other levels, you must explicitly set the log level in your Logstash deployment's `log4j2.properties` file, e.g.:
