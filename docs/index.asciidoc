@@ -4,10 +4,10 @@
 
 
 /////////////////////////////////////////////
-// Kafka Input Plugin Source Has Moved  //
+// Kafka Input Plugin Source Has Moved     //
 // --------------------------------------- //
-// The Kafka Input Plugin is now a part //
-// of the Kafka Integration.            //
+// The Kafka Input Plugin is now a part    //
+// of the Kafka Integration.               //
 //                                         //
 // This stand-alone plugin project remains //
 // open for backports to the 9.x series.   //
