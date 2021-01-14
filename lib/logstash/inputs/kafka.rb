@@ -1,5 +1,6 @@
 require 'logstash/namespace'
 require 'logstash/inputs/base'
+require "logstash/util/charset"
 require 'stud/interval'
 require 'java'
 require 'logstash-input-kafka_jars.rb'
@@ -216,9 +217,18 @@ class LogStash::Inputs::Kafka < LogStash::Inputs::Base
   config :decorate_events, :validate => :boolean, :default => false
 
 
+  # Option for charset conversion, default is UTF-8, especially useful when after one codec applied.
+  config :charset, :validate => ::Encoding.name_list, :default => "UTF-8"
+
+  # Option for what fields need to be converted to the charset specified by option charset. Default is an empty array.
+  # Once a unexist field set, an error log will be writen into the log.
+  config :charset_field, :validate => :array, :default => []
+
   public
   def register
     @runner_threads = []
+    @converter = LogStash::Util::Charset.new(@charset)
+    @converter.logger = @logger
   end # def register
 
   public
@@ -257,6 +267,15 @@ class LogStash::Inputs::Kafka < LogStash::Inputs::Base
           for record in records do
             codec_instance.decode(record.value.to_s) do |event|
               decorate(event)
+              unless @charset_field.empty?
+                @charset_field.each do |e|
+                  unless event.get(e).nil?
+                    event.set(e,@converter.convert(event.get(e)))
+                  else
+                    @logger.error("No such field:[" + e + "]. Skip it for charset conversion.")
+                  end
+                end
+              end
               if @decorate_events
                 event.set("[@metadata][kafka][topic]", record.topic)
                 event.set("[@metadata][kafka][consumer_group]", @group_id)
