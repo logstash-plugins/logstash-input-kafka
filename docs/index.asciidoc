@@ -312,7 +312,8 @@ services for Kafka. This setting provides the path to the JAAS file. Sample JAAS
 ----------------------------------
 KafkaClient {
   com.sun.security.auth.module.Krb5LoginModule required
-  useTicketCache=true
+  useTicketCache=true #requires /usr/bin/kinit
+  useKeyTab=true
   renewTicket=true
   serviceName="kafka";
   };
