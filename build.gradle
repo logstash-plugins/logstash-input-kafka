@@ -44,11 +44,11 @@ task wrapper(type: Wrapper) {
 }
 
 dependencies {
-    compile 'org.apache.kafka:kafka-clients:2.3.0'
-    compile 'com.github.luben:zstd-jni:1.4.2-1'
-    compile 'org.slf4j:slf4j-api:1.7.26'
-    compile 'org.lz4:lz4-java:1.6.0'
-    compile 'org.xerial.snappy:snappy-java:1.1.7.3'
+    compile 'org.apache.kafka:kafka-clients:3.0.0'
+    compile 'com.github.luben:zstd-jni:1.5.0-2'
+    compile 'org.slf4j:slf4j-api:1.7.30'
+    compile 'org.lz4:lz4-java:1.7.1'
+    compile 'org.xerial.snappy:snappy-java:1.1.8.1'
 
 }
 task generateGemJarRequiresFile {
