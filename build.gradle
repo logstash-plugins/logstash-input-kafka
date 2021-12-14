@@ -39,10 +39,6 @@ repositories {
     mavenCentral()
 }
 
-task wrapper(type: Wrapper) {
-    gradleVersion = '4.0'
-}
-
 dependencies {
     compile 'org.apache.kafka:kafka-clients:3.0.0'
     compile 'com.github.luben:zstd-jni:1.5.0-2'
