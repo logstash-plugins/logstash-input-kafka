@@ -40,7 +40,7 @@ repositories {
 }
 
 dependencies {
-    compile 'org.apache.kafka:kafka-clients:3.0.0'
+    compile 'org.apache.kafka:kafka-clients:2.8.1'
     compile 'com.github.luben:zstd-jni:1.5.0-2'
     compile 'org.slf4j:slf4j-api:1.7.30'
     compile 'org.lz4:lz4-java:1.7.1'
