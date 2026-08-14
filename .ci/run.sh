@@ -1,7 +1,5 @@
 #!/bin/bash
 
-env
-
 set -ex
 
 if [ "${INTEGRATION}" = "true" ]; then
