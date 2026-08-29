@@ -223,7 +223,7 @@ class LogStash::Inputs::Kafka < LogStash::Inputs::Base
 
   public
   def run(logstash_queue)
-    @runner_consumers = consumer_threads.times.map { |i| create_consumer("#{client_id}-#{i}") }
+    @runner_consumers = consumer_threads.times.map { |i| create_consumer("#{client_id}-#{i}-#{pipeline_id}") }
     @runner_threads = @runner_consumers.map { |consumer| thread_runner(logstash_queue, consumer) }
     @runner_threads.each { |t| t.join }
   end # def run
@@ -359,4 +359,10 @@ class LogStash::Inputs::Kafka < LogStash::Inputs::Base
     props.put("sasl.kerberos.service.name",sasl_kerberos_service_name) unless sasl_kerberos_service_name.nil?
     props.put("sasl.jaas.config", sasl_jaas_config) unless sasl_jaas_config.nil?
   end
+
+  # ID of the pipeline whose events you want to read from.
+  def pipeline_id
+    respond_to?(:execution_context) ? execution_context.pipeline_id : "main"
+  end
+
 end #class LogStash::Inputs::Kafka
