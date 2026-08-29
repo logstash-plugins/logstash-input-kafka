@@ -50,7 +50,7 @@ By default security is disabled but can be turned on as needed.
 The Logstash Kafka consumer handles group management and uses the default offset management
 strategy using Kafka topics.
 
-Logstash instances by default form a single logical group to subscribe to Kafka topics
+By default, Logstash instances form a single logical group to subscribe to Kafka topics.
 Each Logstash Kafka consumer can run multiple threads to increase read throughput. Alternatively, 
 you could run multiple Logstash instances with the same `group_id` to spread the load across
 physical machines. Messages in a topic will be distributed to all Logstash instances with
