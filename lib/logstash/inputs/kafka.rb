@@ -223,7 +223,7 @@ class LogStash::Inputs::Kafka < LogStash::Inputs::Base
 
   public
   def run(logstash_queue)
-    @runner_consumers = consumer_threads.times.map { |i| create_consumer("#{client_id}-#{i}") }
+    @runner_consumers = consumer_threads.times.map { |i| create_consumer(client_id) }
     @runner_threads = @runner_consumers.map { |consumer| thread_runner(logstash_queue, consumer) }
     @runner_threads.each { |t| t.join }
   end # def run
